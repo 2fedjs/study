@@ -1,0 +1,4 @@
+/*#перенос строк*/
+
+preferences/settings
+"word_wrap": "true"
