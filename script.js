@@ -1,6 +1,7 @@
 ﻿/*#ссылки*/
 
 //plnkr.co - для решения задач онлайн
+//https://github.com/azat-io/you-dont-know-js-ru - you-dont-know-js-ru
 
 ////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,10 @@ alert( x ); // не 5, а 1! Переменная "отвязана" от argume
 } 
 f(1);
 
-/*У функций в режиме use strict вместо глобального объекта this будет undefined.
+arguments.callee //при use strict оно не работает. хранит в свойстве ссылку на функцию, которая выполняется в данный момент.
+arguments.callee.caller //при use strict оно не работает. хранит ссылку на функцию, которая вызвала данную.
+
+/*У функций в режиме use strict для this вместо глобального объекта this будет undefined.
 
 При use strict код внутри eval по-прежнему сможет читать и менять внешние переменные, однако переменные и функции, объявленные внутри eval, не попадут наружу.*/
 
@@ -47,6 +51,160 @@ user.age = 30;
 alert( user.age ); // undefined
 /*Свойство age было записано во временный объект, который был тут же уничтожен, так что смысла в такой записи немного. Пример выше выполняется без use strict, в строгом режиме была бы ошибка, и это хорошо, так как такая запись, по большому счету, не имеет смысла.*/
 
+//В современном JavaScript от with отказались. С use strict она не работает.
+with(obj) { 
+  //...код...
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#Дата и Время*/
+
+//Создание
+//Создает объект Date с текущей датой и временем:
+var now = new Date();
+alert( now );
+
+// 24 часа после 01.01.1970 GMT+0
+var Jan02_1970 = new Date(3600 * 24 * 1000);
+alert( Jan02_1970 )
+
+new Date(datestring)
+//Если единственный аргумент – строка, используется вызов Date.parse для чтения даты из неё.
+
+new Date(2011, 0, 1, 0, 0, 0, 0); // // 1 января 2011, 00:00:00
+new Date(2011, 0, 1); // то же самое, часы/секунды по умолчанию равны 0
+
+getFullYear()
+//Получить год (из 4 цифр)
+getMonth()
+//Получить месяц, от 0 до 11.
+getDate()
+//Получить число месяца, от 1 до 31.
+getHours(), getMinutes(), getSeconds(), getMilliseconds()
+//Получить соответствующие компоненты.
+//Дополнительно можно получить день недели:
+getDay()  //от 0(воскресенье) до 6(суббота).
+
+//Существуют также UTC-варианты этих методов, возвращающие день, месяц, год и т.п. для зоны GMT+0 (UTC): getUTCFullYear(), getUTCMonth(), getUTCDay().
+// текущая дата
+var date = new Date();
+
+// час в текущей временной зоне
+alert( date.getHours() );
+
+// сколько сейчас времени в Лондоне?
+// час в зоне GMT+0
+alert( date.getUTCHours() );
+
+//существуют два специальных метода без UTC-варианта:
+
+getTime()
+//Возвращает число миллисекунд, прошедших с 1 января 1970 года GMT+0, то есть того же вида, который используется в конструкторе new Date(milliseconds).
+
+getTimezoneOffset()
+//Возвращает разницу между местным и UTC-временем, в минутах.
+
+ alert( new Date().getTimezoneOffset() ); // Для GMT-1 выведет 60
+
+//Установка компонентов даты
+
+//Следующие методы позволяют устанавливать компоненты даты и времени:
+
+setFullYear(year [, month, date])
+setMonth(month [, date])
+setDate(date)
+d.setDate(1); // поставить первое число месяца
+d.setDate(0); // нулевого числа нет, будет последнее число предыдущего месяца
+d.setDate(-1); // предпоследнее число предыдущего месяца
+setHours(hour [, min, sec, ms])
+setMinutes(min [, sec, ms])
+setSeconds(sec [, ms])
+setMilliseconds(ms)
+setTime(milliseconds) //(устанавливает всю дату по миллисекундам с 01.01.1970 UTC)
+//Все они, кроме setTime(), обладают также UTC-вариантом, например: setUTCHours().
+
+//Автоисправление 
+var d = new Date(2013, 0, 32); // 32 января 2013 ?!?
+alert(d); // ... это 1 февраля 2013!
+
+var d = new Date(2011, 1, 28);
+d.setDate(d.getDate() + 2);
+
+alert( d ); // 2 марта, 2011
+
+//получим дату на 70 секунд большую текущей:
+
+ var d = new Date();
+d.setSeconds(d.getSeconds() + 70);
+
+alert( d ); // выведет корректную дату
+
+//Преобразование к числу
+alert(+new Date) // +date то же самое, что: +date.valueOf()
+
+//даты можно вычитать, результат вычитания объектов Date – их временная разница, в миллисекундах.
+var start = new Date; // засекли время
+
+// что-то сделать
+for (var i = 0; i < 100000; i++) {
+  var doSomething = i * i * i;
+}
+
+var end = new Date; // конец измерения
+
+alert( "Цикл занял " + (end - start) + " ms" );
+
+//Форматирование и вывод дат
+
+var date = new Date(2014, 11, 31, 12, 30, 0);
+
+var options = {
+  era: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  weekday: 'long',
+  timezone: 'UTC',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric'
+};
+
+alert( date.toLocaleString("ru", options) ); // среда, 31 декабря 2014 г. н.э. 12:30:00
+alert( date.toLocaleString("en-US", options) ); // Wednesday, December 31, 2014 Anno Domini 12:30:00 PM
+
+//без локализации:
+
+toString(), toDateString(), toTimeString() //Возвращают стандартное строчное представление, не заданное жёстко в стандарте, а зависящее от браузера. 
+
+var d = new Date();
+alert( d.toString() ); // вывод, похожий на 'Wed Jan 26 2011 16:40:50 GMT+0300'
+
+toUTCString() //То же самое, что toString(), но дата в зоне UTC.
+
+toISOString() //Возвращает дату в формате ISO
+
+var d = new Date();
+
+alert( d.toISOString() ); // вывод, похожий на '2011-01-26T13:51:50.417Z'
+
+//Date.parse
+
+var msUTC = Date.parse('2012-01-26T13:51:50.417Z'); // зона UTC
+
+alert( msUTC ); // 1327571510417 (число миллисекунд)
+
+//С таймзоной -07:00 GMT:
+
+ var ms = Date.parse('2012-01-26T13:51:50.417-07:00');
+
+alert( ms ); // 1327611110417 (число миллисекунд)
+
+//Date.now()
+
+Date.now() //возвращает дату сразу в виде миллисекунд. Технически, он аналогичен вызову +new Date(), но в отличие от него не создаёт промежуточный объект даты, а поэтому – во много раз быстрее.
+ 
 ////////////////////////////////////////////////////////////////
 
 /*#типы данных*/
@@ -179,6 +337,126 @@ var user = {
 var keys = Object.keys(user);
 alert( keys ); // name, age
 
+//Конструктор
+//Конструктором становится любая функция, вызванная через new.
+function Animal(name) {
+  this.name = name;
+  this.canWalk = true;
+}
+
+var animal = new Animal("ёжик");
+
+//Иногда функцию-конструктор объявляют и тут же используют, вот так:
+
+var animal = new function() {
+  this.name = "Васька";
+  this.canWalk = true;
+};
+
+//Дескрипторы в примерах
+Object.defineProperty(object1, 'property1', {
+  value: 42,
+  writable: false
+});
+/*В нём могут быть следующие поля:
+
+value – значение свойства, по умолчанию undefined
+writable – значение свойства можно менять, если true. По умолчанию false.
+configurable – если true, то свойство можно удалять, а также менять его в дальнейшем при помощи новых вызовов defineProperty. По умолчанию false.
+enumerable – если true, то свойство просматривается в цикле for..in и методе Object.keys(). По умолчанию false.
+get – функция, которая возвращает значение свойства. По умолчанию undefined.
+set – функция, которая записывает значение свойства. По умолчанию undefined.*/
+//Чтобы избежать конфликта, запрещено одновременно указывать значение value и функции get/set. Либо значение, либо функции для его чтения-записи, одно из двух. Также запрещено и не имеет смысла указывать writable при наличии get/set-функций.
+
+//Свойство-функция
+var user = {
+  firstName: "Вася",
+  surname: "Петров"
+}
+
+Object.defineProperty(user, "fullName", {
+  get: function() {
+    return this.firstName + ' ' + this.surname;
+  },
+   set: function(value) {
+      var split = value.split(' ');
+      this.firstName = split[0];
+      this.surname = split[1];
+    }
+});
+
+alert(user.fullName); // Вася Петров
+//Если мы создаём объект при помощи синтаксиса { ... }, то задать свойства-функции можно прямо в его определении.
+var user = {
+  firstName: "Вася",
+  surname: "Петров",
+
+  get fullName() {
+    return this.firstName + ' ' + this.surname;
+  },
+
+  set fullName(value) {
+    var split = value.split(' ');
+    this.firstName = split[0];
+    this.surname = split[1];
+  }
+};
+
+//Позволяет объявить несколько свойств сразу:
+Object.defineProperties(user, {
+  firstName: {
+    value: "Петя"
+  },
+
+  surname: {
+    value: "Иванов"
+  },
+
+  fullName: {
+    get: function() {
+      return this.firstName + ' ' + this.surname;
+    }
+  }
+});
+
+
+//возвращает только enumerable-свойства.
+var obj = {
+  a: 1,
+  b: 2,
+  internal: 3
+};
+alert( Object.keys(obj) ); // a,b
+
+//возвращает все:
+alert( Object.getOwnPropertyNames(obj) ); // a, b, internal
+
+//Возвращает дескриптор для свойства obj[prop].
+var obj = {
+  test: 5
+};
+var descriptor = Object.getOwnPropertyDescriptor(obj, 'test');
+
+// заменим value на геттер, для этого...
+delete descriptor.value; // ..нужно убрать value/writable
+delete descriptor.writable;
+descriptor.get = function() { // и поставить get
+  alert( "Preved :)" );
+};
+
+Object.preventExtensions(obj)
+//Запрещает добавление свойств в объект.
+Object.seal(obj)
+//Запрещает добавление и удаление свойств, все текущие свойства делает configurable: false.
+Object.freeze(obj)
+//Запрещает добавление, удаление и изменение свойств, все текущие свойства делает configurable: false, writable: false.
+Object.isExtensible(obj)
+//Возвращает false, если добавление свойств объекта было запрещено вызовом метода Object.preventExtensions.
+Object.isSealed(obj)
+//Возвращает true, если добавление и удаление свойств объекта запрещено, и все текущие свойства являются configurable: false.
+Object.isFrozen(obj)
+//Возвращает true, если добавление, удаление и изменение свойств объекта запрещено, и все текущие свойства являются configurable: false, writable: false.
+
 ////////////////////////////////////////////////////////////////
 
 /*#массивы*/
@@ -227,6 +505,7 @@ alert( str ); // Маша;Петя;Марина;Василий
  alert( new Array(4).join("ля") ); // ляляля
 
 //Метод splice
+// изменяет содержимое массива, удаляя существующие элементы и/или добавляя новые.
  arr.splice(1, 1); // начиная с позиции 1, удалить 1 элемент
  // удалить 3 первых элемента и добавить другие вместо них
 arr.splice(0, 3, "Мы", "изучаем")
@@ -243,6 +522,7 @@ arr.splice(2, 0, "сложный", "язык");
 arr.splice(-1, 0, 3, 4);
 
 //Метод slice
+//Создает новый массив
 //Метод slice(begin, end) копирует участок массива от begin до end, не включая end. Исходный массив при этом не меняется.
 var arr = ["Почему", "надо", "учить", "JavaScript"];
 var arr2 = arr.slice(1, 3); // элементы 1, 2 (не включая 3)
@@ -271,6 +551,7 @@ arr.sort(compareNumeric);
 alert(arr);  // 1, 2, 15
 
 //Метод reverse
+//изменяет массив 
 var arr = [1, 2, 3];
 arr.reverse();
 alert( arr ); // 3,2,1
@@ -282,7 +563,7 @@ var arr = [1, 2];
 var newArr = arr.concat(3, 4);
 alert( newArr ); // 1,2,3,4
 
-//метод indexOf/lastIndexOf
+//метод indexOf
 //Метод «arr.indexOf(searchElement[, fromIndex])» возвращает номер элемента searchElement в массиве arr или -1, если его нет.
 var arr = [1, 0, false];
 
@@ -290,7 +571,74 @@ alert( arr.indexOf(0) ); // 1
 alert( arr.indexOf(false) ); // 2
 alert( arr.indexOf(null) ); // -1
 
+//метод lastIndexOf
 //Метод «arr.lastIndexOf(searchElement[, fromIndex])» ищет справа-налево: с конца массива или с номера fromIndex, если он указан.
+
+//Метод forEach
+//для каждого элемента массива вызывает функцию callback.
+arr.forEach(function(item, i, arr) {
+  alert( i + ": " + item + " (массив:" + arr + ")" );
+});
+//Второй, необязательный аргумент forEach позволяет указать контекст this
+
+//Метод filter
+//используется для фильтрации массива через функцию. создаёт новый массив
+var arr = [1, -1, 2, -2, 3];
+var positiveArr = arr.filter(function(number) {
+  return number > 0;
+});
+alert( positiveArr ); // 1,2,3
+
+//Метод map
+//используется для трансформации массива. создаёт новый массив
+var names = ['HTML', 'CSS', 'JavaScript'];
+var nameLengths = names.map(function(name) {
+  return name.length;
+});
+// получили массив с длинами
+alert( nameLengths ); // 4,3,10
+
+//Метод every
+//возвращает true, если вызов callback вернёт true для каждого элемента arr
+function isBigEnough(element, index, array) {
+  return element >= 10;
+}
+[12, 5, 8, 130, 44].every(isBigEnough);   // false
+[12, 54, 18, 130, 44].every(isBigEnough); // true
+
+//Метод some
+//возвращает true, если вызов callback вернёт true для какого-нибудь элемента arr.
+function isBiggerThan10(element, index, array) {
+  return element > 10;
+}
+[2, 5, 8, 1, 4].some(isBiggerThan10);  // false
+[12, 5, 8, 1, 4].some(isBiggerThan10); // true
+
+//Метод reduce
+//применяет функцию к аккумулятору и каждому значению массива (слева-направо), сводя его к одному значению.
+var a = ['h','e','l','l','o',]; 
+var as = a.reduce((sum,elem)=>sum+elem);
+
+/*Аргументы функции callback(previousValue, currentItem, index, arr):
+
+previousValue – последний результат вызова функции, он же «промежуточный результат».
+currentItem – текущий элемент массива, элементы перебираются по очереди слева-направо.
+index – номер текущего элемента.
+arr – обрабатываемый массив.*/
+
+//Метод reduceRight
+//сворачивает все элементы справа налево в одно значение
+var a = ['h','e','l','l','o',]; 
+var as = a.reduceRight((sum,elem)=>sum+elem);
+
+//Псевдомассив аргументов "arguments"
+function sayHi() {
+  for (var i = 0; i < arguments.length; i++) {
+    alert( "Привет, " + arguments[i] );
+  }
+}
+
+sayHi("Винни", "Пятачок"); // 'Привет, Винни', 'Привет, Пятачок'
 
 ////////////////////////////////////////////////////////////////
 
@@ -702,6 +1050,98 @@ f = null;
 
 alert( g(5) ); // 120, работает!
 
+//При создании функция получает скрытое свойство [[Scope]], которое ссылается на лексическое окружение, в котором она была создана.
+sayHi.[[Scope]] = window
+//При создании функции с использованием new Function, её свойство [[Scope]] ссылается не на текущий LexicalEnvironment, а на window.
+
+//Свойства функции
+function f() {}
+
+f.test = 5;
+alert( f.test );
+
+/*Свойства функции не стоит путать с переменными и параметрами. Они совершенно никак не связаны. Переменные доступны только внутри функции, они создаются в процессе её выполнения. Это – использование функции «как функции».
+А свойство у функции – доступно отовсюду и всегда. Это – использование функции «как объекта».
+Если хочется привязать значение к функции, то можно им воспользоваться вместо внешних переменных.*/
+
+//модули
+//Немедленно самоисполняемая функция - IIFE (Immediately Invoked Function Expression)
+
+(function() {
+
+  alert( "объявляем локальные переменные, функции, работаем" );
+  // ...
+
+}());
+
+//Экспорт через return
+var lodash = (function() {
+
+  var version;
+  function assignDefaults() { ... }
+
+  return {
+    defaults: function() {  }
+  }
+
+})();
+
+//Метод call
+func.call(context, arg1, arg2, ...) // то же, что обычный вызов func(a, b...), но с явно указанным this(=context).
+
+var user = {
+  firstName: "Василий",
+  surname: "Петров",
+  patronym: "Иванович"
+};
+
+function showFullName(firstPart, lastPart) {
+  alert( this[firstPart] + " " + this[lastPart] );
+}
+
+// f.call(контекст, аргумент1, аргумент2, ...)
+showFullName.call(user, 'firstName', 'surname') // "Василий Петров"
+showFullName.call(user, 'firstName', 'patronym') // "Василий Иванович"
+
+//Метод apply
+func.apply(context, [arg1, arg2]);
+
+//Метод bind
+var g = f.bind("Context");
+setTimeout(user.sayHi.bind(user), 1000); // аналог через встроенный метод
+//Методы call/apply вызывают функцию с заданным контекстом и аргументами.
+//А bind не вызывает функцию. Он только возвращает «обёртку», которую мы можем вызвать позже, и которая передаст вызов в исходную функцию, с привязанным контекстом.
+
+//Привязать всё: bindAll
+for (var prop in user) {
+  if (typeof user[prop] == 'function') {
+    user[prop] = user[prop].bind(user);
+  }
+}
+
+//Карринг 
+//или каррирование – термин функционального программирования, который означает создание новой функции путём фиксирования аргументов существующей.
+
+function mul(a, b) {
+  return a * b;
+};
+// double умножает только на два
+var double = mul.bind(null, 2); // контекст фиксируем null, он не используется
+
+alert( double(3) ); // = mul(2, 3) = 6
+alert( double(4) ); // = mul(2, 4) = 8
+alert( double(5) ); // = mul(2, 5) = 10
+
+//Декоратор
+//приём программирования, который позволяет взять существующую функцию и изменить/расширить ее поведение.
+
+////////////////////////////////////////////////////////////////
+
+/*#console*/
+
+console.time(метка) // включить внутренний хронометр браузера с меткой.
+console.timeEnd(метка) // выключить внутренний хронометр браузера с меткой и вывести результат.
+
 ////////////////////////////////////////////////////////////////
 
 /*#тесты*/
@@ -891,3 +1331,11 @@ describe("pow", function() {
   });
 
 });
+
+////////////////////////////////////////////////////////////////
+
+/*#window*/
+
+//Создать переменную
+window.a = 5;
+alert( a ); // 5
