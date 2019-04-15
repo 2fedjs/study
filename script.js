@@ -640,6 +640,10 @@ function sayHi() {
 
 sayHi("Винни", "Пятачок"); // 'Привет, Винни', 'Привет, Пятачок'
 
+//Метод Array.isArray()
+alert( Array.isArray([1,2,3]) ); // true
+alert( Array.isArray("not array")); // false
+
 ////////////////////////////////////////////////////////////////
 
 /*#Math*/
@@ -774,7 +778,11 @@ switch (a) {
     alert( 'Я таких значений не знаю' );
 }
 
-
+//Оператор instanceof
+//позволяет проверить, создан ли объект данной функцией
+function User() {}
+var user = new User();
+alert( user instanceof User ); // true
 
 
 ////////////////////////////////////////////////////////////////
@@ -1135,6 +1143,13 @@ alert( double(5) ); // = mul(2, 5) = 10
 //Декоратор
 //приём программирования, который позволяет взять существующую функцию и изменить/расширить ее поведение.
 
+//eval 
+//позволяет выполнить код, переданный ей в виде строки.
+ eval(' alert(a) '); // 2
+
+ //возвращает последнее вычисленное выражение, например:
+ alert( eval('1+1') ); // 2
+
 ////////////////////////////////////////////////////////////////
 
 /*#console*/
@@ -1339,3 +1354,240 @@ describe("pow", function() {
 //Создать переменную
 window.a = 5;
 alert( a ); // 5
+
+//window.onerror
+//В браузере существует специальное свойство window.onerror, если в него записать функцию, то она выполнится и получит в аргументах сообщение ошибки, текущий URL и номер строки, откуда «выпала» ошибка.
+
+window.onerror = function(message, url, lineNumber) {
+    alert("Поймана ошибка, выпавшая в глобальную область!\n" +
+      "Сообщение: " + message + "\n(" + url + ":" + lineNumber + ")");
+  };
+
+  function readData() {
+    error(); // ой, что-то не так
+  }
+
+  readData();
+
+////////////////////////////////////////////////////////////////
+
+/*#JSON*/
+
+//Метод JSON.parse
+JSON.parse // читает объекты из строки в формате JSON.
+//превратит строку с данными в формате JSON в JavaScript-объект/массив/значение.
+var numbers = "[0, 1, 2, 3]";
+numbers = JSON.parse(numbers);
+alert( numbers[1] ); // 1
+
+//Для интеллектуального восстановления из строки у JSON.parse(str, reviver) есть второй параметр reviver, который является функцией function(key, value).
+var str = '{"title":"Конференция","date":"2014-11-30T12:00:00.000Z"}';
+var event = JSON.parse(str, function(key, value) {
+  if (key == 'date') return new Date(value);
+  return value;
+});
+alert( event.date.getDate() ); // теперь сработает!
+
+//метод JSON.stringify
+JSON.stringify(value, replacer, space);
+JSON.stringify // превращает объекты в строку в формате JSON, используется, когда нужно из JavaScript передать данные по сети.
+
+var event = {
+  title: "Конференция",
+  date: "сегодня"
+};
+
+var str = JSON.stringify(event);
+alert( str ); // {"title":"Конференция","date":"сегодня"}
+
+//Во втором параметре JSON.stringify(value, replacer) можно указать массив свойств, которые подлежат сериализации.
+var user = {
+  name: "Вася",
+  age: 25,
+  window: window
+};
+
+alert( JSON.stringify(user, ["name", "age"]) );
+// {"name":"Вася","age":25}
+
+var user = {
+  name: "Вася",
+  age: 25,
+  window: window
+};
+
+var str = JSON.stringify(user, function(key, value) {
+  if (key == 'window') return undefined;
+  return value;
+});
+
+alert( str ); // {"name":"Вася","age":25}
+
+//В методе JSON.stringify(value, replacer, space) есть ещё третий параметр space.
+//Если он является числом – то уровни вложенности в JSON оформляются указанным количеством пробелов, если строкой – вставляется эта строка.
+var user = {
+  name: "Вася",
+  age: 25,
+  roles: {
+    isAdmin: false,
+    isEditor: true
+  }
+};
+
+var str = JSON.stringify(user, "", 4);
+
+alert( str );
+/* Результат -- красиво сериализованный объект:
+{
+    "name": "Вася",
+    "age": 25,
+    "roles": {
+        "isAdmin": false,
+        "isEditor": true
+    }
+}
+*/
+
+////////////////////////////////////////////////////////////////
+
+/*#таймеры*/
+
+//setTimeout
+var timerId = setTimeout(func / code, delay[, arg1, arg2...])
+/*Параметры:
+
+func/code
+Функция или строка кода для исполнения. Строка поддерживается для совместимости, использовать её не рекомендуется.
+delay
+Задержка в миллисекундах, 1000 миллисекунд равны 1 секунде.
+arg1, arg2…
+Аргументы, которые нужно передать функции.*/
+function func() {
+  alert( 'Привет' );
+}
+
+setTimeout(func, 1000);
+setTimeout(func, 1000, "Привет", "Вася"); // Привет, Вася
+
+//Отмена исполнения clearTimeout
+var timerId = setTimeout(...);
+clearTimeout(timerId);
+
+//setInterval
+var timerId = setInterval(func / code, delay[, arg1, arg2...])
+// регулярно повторяет  через указанный интервал времени
+
+// начать повторы с интервалом 2 сек
+var timerId = setInterval(function() {
+  alert( "тик" );
+}, 2000);
+
+// через 5 сек остановить повторы
+setTimeout(function() {
+  clearInterval(timerId);
+  alert( 'стоп' );
+}, 5000);
+
+//Рекурсивный setTimeout
+
+var timerId = setTimeout(function tick() {
+  alert( "тик" );
+  timerId = setTimeout(tick, 2000);
+}, 2000);
+//Рекурсивный setTimeout – более гибкий метод тайминга, чем setInterval, так как время до следующего выполнения можно запланировать по-разному, в зависимости от результатов текущего.
+
+////////////////////////////////////////////////////////////////
+
+/*#перехват ошибок*/
+try {
+
+  alert('Начало блока try');  // (1) <--
+
+  lalala; // ошибка, переменная не определена!
+
+  alert('Конец блока try');  // (2)
+
+} catch(e) {
+
+  alert('Ошибка ' + e.name + ":" + e.message + "\n" + e.stack); // (3) <--
+
+}
+
+alert("Потом код продолжит выполнение...");
+
+/*name
+Тип ошибки. Например, при обращении к несуществующей переменной: "ReferenceError".
+message
+Текстовое сообщение о деталях ошибки.
+stack
+Везде, кроме IE8-, есть также свойство stack, которое содержит строку с информацией о последовательности вызовов, которая привела к ошибке.*/
+
+//Генерация своих ошибок
+try {
+
+  var user = JSON.parse(data); // <-- выполнится без ошибок
+
+  if (!user.name) {
+    throw new SyntaxError("Данные некорректны");
+  }
+
+  alert( user.name );
+
+} catch (e) {
+ if (e.name == "SyntaxError") {
+    alert( "Извините, в данных ошибка" );
+  } else {
+    throw e;
+  }
+}
+
+//В JavaScript встроен ряд конструкторов для стандартных ошибок: SyntaxError, ReferenceError, RangeError и некоторые другие.
+
+//Оборачивание исключений
+function ReadError(message, cause) {
+  this.message = message;
+  this.cause = cause;
+  this.name = 'ReadError';
+  this.stack = cause.stack;
+}
+
+function readData() {
+  var data = '{ bad data }';
+
+  try {
+    // ...
+    JSON.parse(data);
+    // ...
+  } catch (e) {
+    // ...
+    if (e.name == 'URIError') {
+      throw new ReadError("Ошибка в URI", e);
+    } else if (e.name == 'SyntaxError') {
+      throw new ReadError("Синтаксическая ошибка в данных", e);
+    } else {
+      throw e; // пробрасываем
+    }
+  }
+}
+
+try {
+  readData();
+} catch (e) {
+  if (e.name == 'ReadError') {
+    alert( e.message );
+    alert( e.cause ); // оригинальная ошибка-причина
+  } else {
+    throw e;
+  }
+}
+
+//Секция finally
+//не обязательна, но если она есть, то она выполняется всегда:
+try {
+  alert( 'try' );
+  if (confirm('Сгенерировать ошибку?')) BAD_CODE();
+} catch (e) {
+  alert( 'catch' );
+} finally {
+  alert( 'finally' );
+}
