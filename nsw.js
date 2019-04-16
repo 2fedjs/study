@@ -4034,3 +4034,257 @@ while (true) {
 }
 
 alert( res );
+
+////////////////////////////////////////////////////////////////
+
+/*#151*/
+
+//Кофеварка с новым методом:
+
+function CoffeeMachine(power) {
+  this.waterAmount = 0;
+
+  var WATER_HEAT_CAPACITY = 4200;
+  var timerId;
+  var self = this;
+
+  function getBoilTime() {
+    return self.waterAmount * WATER_HEAT_CAPACITY * 80 / power;
+  }
+
+  function onReady() {
+    alert( 'Кофе готово!' );
+  }
+
+  this.run = function() {
+    timerId = setTimeout(onReady, getBoilTime());
+  };
+
+  this.stop = function() {
+    clearTimeout(timerId)
+  };
+}
+
+var coffeeMachine = new CoffeeMachine(50000);
+coffeeMachine.waterAmount = 200;
+
+coffeeMachine.run();
+coffeeMachine.stop(); // кофе приготовлен не будет
+
+////////////////////////////////////////////////////////////////
+
+/*#152*/
+
+//Решение:
+
+ function User() {
+
+  var firstName, surname;
+
+  this.setFirstName = function(newFirstName) {
+    firstName = newFirstName;
+  };
+
+  this.setSurname = function(newSurname) {
+    surname = newSurname;
+  };
+
+  this.getFullName = function() {
+    return firstName + ' ' + surname;
+  }
+}
+
+var user = new User();
+user.setFirstName("Петя");
+user.setSurname("Иванов");
+
+alert( user.getFullName() ); // Петя Иванов
+//Обратим внимание, что для «геттера» getFullName нет соответствующего свойства объекта, он конструирует ответ «на лету». Это нормально. Одна из целей существования геттеров/сеттеров – как раз и есть изоляция внутренних свойств объекта, чтобы можно было их как угодно менять, генерировать «на лету», а внешний интерфейс оставался тем же.
+
+////////////////////////////////////////////////////////////////
+
+/*#153*/
+
+function CoffeeMachine(power, capacity) {
+  //...
+  this.setWaterAmount = function(amount) {
+    if (amount < 0) {
+      throw new Error("Значение должно быть положительным");
+    }
+    if (amount > capacity) {
+      throw new Error("Нельзя залить воды больше, чем " + capacity);
+    }
+
+    waterAmount = amount;
+  };
+
+  this.getWaterAmount = function() {
+    return waterAmount;
+  };
+
+  this.getPower = function() {
+    return power;
+  };
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#154*/
+
+//В решении ниже addWater будет просто вызывать setWaterAmount.
+
+function CoffeeMachine(power, capacity) {
+  var waterAmount = 0;
+
+  var WATER_HEAT_CAPACITY = 4200;
+
+  function getTimeToBoil() {
+    return waterAmount * WATER_HEAT_CAPACITY * 80 / power;
+  }
+
+  this.setWaterAmount = function(amount) {
+    if (amount < 0) {
+      throw new Error("Значение должно быть положительным");
+    }
+    if (amount > capacity) {
+      throw new Error("Нельзя залить больше, чем " + capacity);
+    }
+
+    waterAmount = amount;
+  };
+
+  this.addWater = function(amount) {
+    this.setWaterAmount(waterAmount + amount);
+  };
+
+  function onReady() {
+    alert( 'Кофе готов!' );
+  }
+
+  this.run = function() {
+    setTimeout(onReady, getTimeToBoil());
+  };
+
+}
+
+var coffeeMachine = new CoffeeMachine(100000, 400);
+coffeeMachine.addWater(200);
+coffeeMachine.addWater(100);
+coffeeMachine.addWater(300); // Нельзя залить больше..
+coffeeMachine.run();
+
+////////////////////////////////////////////////////////////////
+
+/*#155*/
+
+function CoffeeMachine(power, capacity) {
+  var waterAmount = 0;
+
+  var WATER_HEAT_CAPACITY = 4200;
+
+  function getTimeToBoil() {
+    return waterAmount * WATER_HEAT_CAPACITY * 80 / power;
+  }
+
+  this.setWaterAmount = function(amount) {
+    // ... проверки пропущены для краткости
+    waterAmount = amount;
+  };
+
+  this.getWaterAmount = function(amount) {
+    return waterAmount;
+  };
+
+  function onReady() {
+    alert( 'Кофе готов!' );
+  }
+
+  this.setOnReady = function(newOnReady) {
+    onReady = newOnReady;
+  };
+
+  this.run = function() {
+    setTimeout(function() {
+      onReady();
+    }, getTimeToBoil());
+  };
+
+}
+
+var coffeeMachine = new CoffeeMachine(20000, 500);
+coffeeMachine.setWaterAmount(150);
+
+coffeeMachine.run();
+
+coffeeMachine.setOnReady(function() {
+  var amount = coffeeMachine.getWaterAmount();
+  alert( 'Готов кофе: ' + amount + 'мл' ); // Готов кофе: 150 мл
+});
+//Обратите внимание на два момента в решении:
+
+//В сеттере setOnReady параметр называется newOnReady. Мы не можем назвать его onReady, так как тогда изнутри сеттера мы никак не доберёмся до внешнего (старого значения):
+
+// нерабочий вариант
+this.setOnReady = function(onReady) {
+  onReady = onReady; // ??? внешняя переменная onReady недоступна
+};
+//Чтобы setOnReady можно было вызывать в любое время, в setTimeout передаётся не onReady, а анонимная функция function() { onReady() }, которая возьмёт текущий (установленный последним) onReady из замыкания.
+
+////////////////////////////////////////////////////////////////
+
+/*#156*/
+
+//Код решения модифицирует функцию run и добавляет приватный идентификатор таймера timerId, по наличию которого мы судим о состоянии кофеварки:
+
+function CoffeeMachine(power, capacity) {
+  var waterAmount = 0;
+
+  var timerId;
+
+  this.isRunning = function() {
+    return !!timerId;
+  };
+
+  var WATER_HEAT_CAPACITY = 4200;
+
+  function getTimeToBoil() {
+    return waterAmount * WATER_HEAT_CAPACITY * 80 / power;
+  }
+
+  this.setWaterAmount = function(amount) {
+    // ... проверки пропущены для краткости
+    waterAmount = amount;
+  };
+
+  this.getWaterAmount = function(amount) {
+    return waterAmount;
+  };
+
+  function onReady() {
+    alert( 'Кофе готов!' );
+  }
+
+  this.setOnReady = function(newOnReady) {
+    onReady = newOnReady;
+  };
+
+  this.run = function() {
+    timerId = setTimeout(function() {
+      timerId = null;
+      onReady();
+    }, getTimeToBoil());
+  };
+
+}
+
+var coffeeMachine = new CoffeeMachine(20000, 500);
+coffeeMachine.setWaterAmount(100);
+
+alert( 'До: ' + coffeeMachine.isRunning() ); // До: false
+
+coffeeMachine.run();
+alert( 'В процессе: ' + coffeeMachine.isRunning() ); // В процессе: true
+
+coffeeMachine.setOnReady(function() {
+  alert( "После: " + coffeeMachine.isRunning() ); // После: false
+});
