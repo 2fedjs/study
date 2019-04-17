@@ -2852,3 +2852,579 @@ alert( 'В процессе: ' + coffeeMachine.isRunning() ); // В процес
 
 coffeeMachine.setOnReady(function() {
   alert( "После: " + coffeeMachine.isRunning() ); // После: false
+
+////////////////////////////////////////////////////////////////
+
+/*#157*/
+
+//В коде CoffeeMachine сделайте так, чтобы метод run выводил ошибку, если кофеварка выключена.
+
+//В итоге должен работать такой код:
+
+var coffeeMachine = new CoffeeMachine(10000);
+coffeeMachine.run(); // ошибка, кофеварка выключена!
+//А вот так – всё в порядке:
+
+var coffeeMachine = new CoffeeMachine(10000);
+coffeeMachine.enable();
+coffeeMachine.run(); // ...Кофе готов!
+
+////////////////////////////////////////////////////////////////
+
+/*#158*/
+
+//Когда кофеварку выключают – текущая варка кофе должна останавливаться.
+
+//Например, следующий код кофе не сварит:
+
+var coffeeMachine = new CoffeeMachine(10000);
+coffeeMachine.enable();
+coffeeMachine.run();
+coffeeMachine.disable(); // остановит работу, ничего не выведет
+//Реализуйте это на основе решения предыдущей задачи.
+
+////////////////////////////////////////////////////////////////
+
+/*#159*/
+
+/*Создайте класс для холодильника Fridge(power), наследующий от Machine, с приватным свойством food и методами addFood(...), getFood():
+
+Приватное свойство food хранит массив еды.
+Публичный метод addFood(item) добавляет в массив food новую еду, доступен вызов с несколькими аргументами addFood(item1, item2...) для добавления нескольких элементов сразу.
+Если холодильник выключен, то добавить еду нельзя, будет ошибка.
+Максимальное количество еды ограничено power/100, где power – мощность холодильника, указывается в конструкторе. При попытке добавить больше – будет ошибка
+Публичный метод getFood() возвращает еду в виде массива, добавление или удаление элементов из которого не должно влиять на свойство food холодильника.
+Код для проверки:*/
+
+var fridge = new Fridge(200);
+fridge.addFood("котлета"); // ошибка, холодильник выключен
+//Ещё код для проверки:
+
+// создать холодильник мощностью 500 (не более 5 еды)
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood("котлета");
+fridge.addFood("сок", "зелень");
+fridge.addFood("варенье", "пирог", "торт"); // ошибка, слишком много еды
+//Код использования холодильника без ошибок:
+
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood("котлета");
+fridge.addFood("сок", "варенье");
+
+var fridgeFood = fridge.getFood();
+alert( fridgeFood ); // котлета, сок, варенье
+
+// добавление элементов не влияет на еду в холодильнике
+//fridgeFood.push("вилка", "ложка");
+
+alert( fridge.getFood() ); // внутри по-прежнему: котлета, сок, варенье
+//Исходный код класса Machine, от которого нужно наследовать:
+
+function Machine(power) {
+  this._power = power;
+  this._enabled = false;
+
+  var self = this;
+
+  this.enable = function() {
+    self._enabled = true;
+  };
+
+  this.disable = function() {
+    self._enabled = false;
+  };
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#160*/
+
+/*Добавьте в холодильник методы:
+
+Публичный метод filterFood(func), который возвращает всю еду, для которой func(item) == true
+Публичный метод removeFood(item), который удаляет еду item из холодильника.
+Код для проверки:*/
+
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood({
+  title: "котлета",
+  calories: 100
+});
+fridge.addFood({
+  title: "сок",
+  calories: 30
+});
+fridge.addFood({
+  title: "зелень",
+  calories: 10
+});
+fridge.addFood({
+  title: "варенье",
+  calories: 150
+});
+
+fridge.removeFood("нет такой еды"); // без эффекта
+alert( fridge.getFood().length ); // 4
+
+var dietItems = fridge.filterFood(function(item) {
+  return item.calories < 50;
+});
+
+dietItems.forEach(function(item) {
+  alert( item.title ); // сок, зелень
+  fridge.removeFood(item);
+});
+
+alert( fridge.getFood().length ); // 2
+//В качестве исходного кода используйте решение предыдущей задачи.
+
+////////////////////////////////////////////////////////////////
+
+/*#161*/
+
+//Переопределите метод disable холодильника, чтобы при наличии в нём еды он выдавал ошибку.
+
+//Код для проверки:
+
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood("кус-кус");
+fridge.disable(); // ошибка, в холодильнике есть еда
+//В качестве исходного кода используйте решение предыдущей задачи.
+
+////////////////////////////////////////////////////////////////
+
+/*#162*/
+
+//Какие значения будут выводиться в коде ниже?
+
+var animal = {
+  jumps: null
+};
+var rabbit = {
+  jumps: true
+};
+
+rabbit.__proto__ = animal;
+
+alert( rabbit.jumps ); // ? (1)
+
+delete rabbit.jumps;
+
+alert( rabbit.jumps ); // ? (2)
+
+delete animal.jumps;
+
+alert( rabbit.jumps ); // ? (3)
+//Итого три вопроса.
+
+////////////////////////////////////////////////////////////////
+
+/*#163*/
+
+/*Сработает ли вызов rabbit.eat() ?
+
+Если да, то в какой именно объект он запишет свойство full: в rabbit или animal?
+*/
+var animal = {
+  eat: function() {
+    this.full = true;
+  }
+};
+
+var rabbit = {
+  __proto__: animal
+};
+
+rabbit.eat();
+
+////////////////////////////////////////////////////////////////
+
+/*#164*/
+
+//Есть объекты:
+
+var head = {
+  glasses: 1
+};
+
+var table = {
+  pen: 3
+};
+
+var bed = {
+  sheet: 1,
+  pillow: 2
+};
+
+var pockets = {
+  money: 2000
+};
+/*Задание состоит из двух частей:
+
+Присвойте объектам ссылки __proto__ так, чтобы любой поиск чего-либо шёл по алгоритму pockets -> bed -> table -> head.
+
+То есть pockets.pen == 3, bed.glasses == 1, но table.money == undefined.
+
+После этого ответьте на вопрос, как быстрее искать glasses: обращением к pockets.glasses или head.glasses? Попробуйте протестировать.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#165*/
+
+/*В примерах ниже создаётся объект new Rabbit, а затем проводятся различные действия с prototype.
+
+Каковы будут результаты выполнения? Почему?
+
+Начнём с этого кода. Что он выведет?*/
+
+function Rabbit() {}
+Rabbit.prototype = {
+  eats: true
+};
+
+var rabbit = new Rabbit();
+
+alert( rabbit.eats );
+//Добавили строку (выделена), что будет теперь?
+
+function Rabbit() {}
+Rabbit.prototype = {
+  eats: true
+};
+
+var rabbit = new Rabbit();
+
+Rabbit.prototype = {};
+
+alert( rabbit.eats );
+//А если код будет такой? (заменена одна строка):
+
+function Rabbit(name) {}
+Rabbit.prototype = {
+  eats: true
+};
+
+var rabbit = new Rabbit();
+
+Rabbit.prototype.eats = false;
+
+alert( rabbit.eats );
+//А такой? (заменена одна строка)
+
+function Rabbit(name) {}
+Rabbit.prototype = {
+  eats: true
+};
+
+var rabbit = new Rabbit();
+
+delete rabbit.eats; // (*)
+
+alert( rabbit.eats );
+//И последний вариант:
+
+function Rabbit(name) {}
+Rabbit.prototype = {
+  eats: true
+};
+
+var rabbit = new Rabbit();
+
+delete Rabbit.prototype.eats; // (*)
+
+alert( rabbit.eats );
+
+////////////////////////////////////////////////////////////////
+
+/*#166*/
+
+//Есть функция Menu, которая получает аргументы в виде объекта options:
+
+/* options содержит настройки меню: width, height и т.п. */
+function Menu(options) {
+  ...
+}
+//Ряд опций должны иметь значение по умолчанию. Мы могли бы проставить их напрямую в объекте options:
+
+function Menu(options) {
+  options.width = options.width || 300; // по умолчанию ширина 300
+  ...
+}
+/*…Но такие изменения могут привести к непредвиденным результатам, т.к. объект options может быть повторно использован во внешнем коде. Он передается в Menu для того, чтобы параметры из него читали, а не писали.
+
+Один из способов безопасно назначить значения по умолчанию – скопировать все свойства options в локальные переменные и затем уже менять. Другой способ – клонировать options путём копирования всех свойств из него в новый объект, который уже изменяется.
+
+При помощи наследования и Object.create предложите третий способ, который позволяет избежать копирования объекта и не требует новых переменных.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#167*/
+
+//Создадим новый объект, вот такой:
+
+function Rabbit(name) {
+  this.name = name;
+}
+Rabbit.prototype.sayHi = function() {
+  alert( this.name );
+};
+
+var rabbit = new Rabbit("Rabbit");
+//Одинаково ли сработают эти вызовы?
+
+rabbit.sayHi();
+Rabbit.prototype.sayHi();
+Object.getPrototypeOf(rabbit).sayHi();
+rabbit.__proto__.sayHi();
+//Все ли они являются кросс-браузерными? Если нет – в каких браузерах сработает каждый?
+
+////////////////////////////////////////////////////////////////
+
+/*#168*/
+
+/*Пусть у нас есть произвольный объект obj, созданный каким-то конструктором, каким – мы не знаем, но хотели бы создать новый объект с его помощью.
+
+Сможем ли мы сделать так?*/
+
+var obj2 = new obj.constructor();
+//Приведите пример конструкторов для obj, при которых такой код будет работать верно – и неверно.
+
+////////////////////////////////////////////////////////////////
+
+/*#169*/
+
+/*Добавьте всем функциям в прототип метод defer(ms), который откладывает вызов функции на ms миллисекунд.
+
+После этого должен работать такой код:*/
+
+function f() {
+  alert( "привет" );
+}
+
+f.defer(1000); // выведет "привет" через 1 секунду
+
+////////////////////////////////////////////////////////////////
+
+/*#170*/
+
+/*Добавьте всем функциям в прототип метод defer(ms), который возвращает обёртку, откладывающую вызов функции на ms миллисекунд.
+
+Например, должно работать так:*/
+
+function f(a, b) {
+  alert( a + b );
+}
+
+f.defer(1000)(1, 2); // выведет 3 через 1 секунду.
+//То есть, должны корректно передаваться аргументы.
+
+////////////////////////////////////////////////////////////////
+
+/*#171*/
+
+/*Есть класс CoffeeMachine, заданный в функциональном стиле.
+
+Задача: переписать CoffeeMachine в виде класса с использованием прототипа.
+
+Исходный код:*/
+
+ function CoffeeMachine(power) {
+  var waterAmount = 0;
+
+  var WATER_HEAT_CAPACITY = 4200;
+
+  function getTimeToBoil() {
+    return waterAmount * WATER_HEAT_CAPACITY * 80 / power;
+  }
+
+  this.run = function() {
+    setTimeout(function() {
+      alert( 'Кофе готов!' );
+    }, getTimeToBoil());
+  };
+
+  this.setWaterAmount = function(amount) {
+    waterAmount = amount;
+  };
+
+}
+
+var coffeeMachine = new CoffeeMachine(10000);
+coffeeMachine.setWaterAmount(50);
+coffeeMachine.run();
+//P.S. При описании через прототипы локальные переменные недоступны методам, поэтому нужно будет переделать их в защищённые свойства.
+
+////////////////////////////////////////////////////////////////
+
+/*#172*/
+
+/*Вы – руководитель команды, которая разрабатывает игру, хомяковую ферму. Один из программистов получил задание создать класс «хомяк» (англ – "Hamster").
+
+Объекты-хомяки должны иметь массив food для хранения еды и метод found для добавления.
+
+Ниже – его решение. При создании двух хомяков, если поел один – почему-то сытым становится и второй тоже.
+
+В чём дело? Как поправить?*/
+
+ function Hamster() {}
+
+Hamster.prototype.food = []; // пустой "живот"
+
+Hamster.prototype.found = function(something) {
+  this.food.push(something);
+};
+
+// Создаём двух хомяков и кормим первого
+var speedy = new Hamster();
+var lazy = new Hamster();
+
+speedy.found("яблоко");
+speedy.found("орех");
+
+alert( speedy.food.length ); // 2
+alert( lazy.food.length ); // 2 (!??)
+
+////////////////////////////////////////////////////////////////
+
+/*#173*/
+
+//Найдите ошибку в прототипном наследовании. К чему она приведёт?
+
+function Animal(name) {
+  this.name = name;
+}
+
+Animal.prototype.walk = function() {
+  alert( "ходит " + this.name );
+};
+
+function Rabbit(name) {
+  this.name = name;
+}
+Rabbit.prototype = Animal.prototype;
+
+Rabbit.prototype.walk = function() {
+  alert( "прыгает! и ходит: " + this.name );
+};
+
+////////////////////////////////////////////////////////////////
+
+/*#174*/
+
+//Найдите ошибку в прототипном наследовании. К чему она приведёт?
+
+ function Animal(name) {
+  this.name = name;
+
+  this.walk = function() {
+    alert( "ходит " + this.name );
+  };
+
+}
+
+function Rabbit(name) {
+  Animal.apply(this, arguments);
+}
+Rabbit.prototype = Object.create(Animal.prototype);
+
+Rabbit.prototype.walk = function() {
+  alert( "прыгает " + this.name );
+};
+
+var rabbit = new Rabbit("Кроль");
+rabbit.walk();
+
+////////////////////////////////////////////////////////////////
+
+/*#175*/
+
+/*Есть реализация часиков, оформленная в виде одной функции-конструктора. У неё есть приватные свойства timer, template и метод render.
+
+Задача: переписать часы на прототипах. Приватные свойства и методы сделать защищёнными.
+
+P.S. Часики тикают в браузерной консоли (надо открыть её, чтобы увидеть).
+Открыть песочницу для задачи.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#176*/
+
+/*Есть реализация часиков на прототипах. Создайте класс, расширяющий её, добавляющий поддержку параметра precision, который будет задавать частоту тика в setInterval. Значение по умолчанию: 1000.
+
+Для этого класс Clock надо унаследовать. Пишите ваш новый код в файле extended-clock.js.
+Исходный класс Clock менять нельзя.
+Пусть конструктор потомка вызывает конструктор родителя. Это позволит избежать проблем при расширении Clock новыми опциями.
+P.S. Часики тикают в браузерной консоли (надо открыть её, чтобы увидеть).
+
+Открыть песочницу для задачи.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#177*/
+
+/*Есть класс Menu. У него может быть два состояния: открыто STATE_OPEN и закрыто STATE_CLOSED.
+
+Создайте наследника AnimatingMenu, который добавляет третье состояние STATE_ANIMATING.
+
+При вызове open() состояние меняется на STATE_ANIMATING, а через 1 секунду, по таймеру, открытие завершается вызовом open() родителя.
+Вызов close() при необходимости отменяет таймер анимации (назначаемый в open) и передаёт вызов родительскому close.
+Метод showState для нового состояния выводит "анимация", для остальных – полагается на родителя.
+Открыть песочницу для задачи.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#178*/
+
+/*В коде ниже создаётся простейшая иерархия классов: Animal -> Rabbit.
+
+Что содержит свойство rabbit.constructor? Распознает ли проверка в alert объект как Rabbit?*/
+
+function Animal() {}
+
+function Rabbit() {}
+Rabbit.prototype = Object.create(Animal.prototype);
+
+var rabbit = new Rabbit();
+
+alert( rabbit.constructor == Rabbit ); // что выведет?
+
+////////////////////////////////////////////////////////////////
+
+/*#179*/
+
+//Почему instanceof в коде ниже возвращает true, ведь объект a явно создан не B()?
+
+function A() {}
+
+function B() {}
+
+A.prototype = B.prototype = {};
+
+var a = new A();
+
+alert( a instanceof B ); // true
+
+////////////////////////////////////////////////////////////////
+
+/*#180*/
+
+/*В коде ниже создаётся простейшая иерархия классов: Animal -> Rabbit.
+
+Что выведет instanceof?
+
+Распознает ли он rabbit как Animal, Rabbit и к тому же Object?*/
+
+function Animal() {}
+
+function Rabbit() {}
+Rabbit.prototype = Object.create(Animal.prototype);
+
+var rabbit = new Rabbit();
+
+alert( rabbit instanceof Rabbit );
+alert( rabbit instanceof Animal );
+alert( rabbit instanceof Object );

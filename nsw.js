@@ -1,4 +1,4 @@
-﻿#1*/
+﻿/*#1*/
 
 /*Первым выполнится big.js, это нормальная последовательность выполнения подряд идущих скриптов.
 Первым выполнится small.js, так как скрипты из-за async ведут себя совершенно независимо друг от друга, страница тоже от них не зависит.
@@ -4288,3 +4288,696 @@ alert( 'В процессе: ' + coffeeMachine.isRunning() ); // В процес
 coffeeMachine.setOnReady(function() {
   alert( "После: " + coffeeMachine.isRunning() ); // После: false
 });
+
+////////////////////////////////////////////////////////////////
+
+/*#157*/
+
+//Изменения в методе run:
+
+this.run = function() {
+  if (!this._enabled) {
+    throw new Error("Кофеварка выключена");
+  }
+
+  setTimeout(onReady, 1000);
+};
+
+////////////////////////////////////////////////////////////////
+
+/*#158*/
+
+function Machine(power) {
+      this._enabled = false;
+
+      this.enable = function() {
+        this._enabled = true;
+      };
+
+      this.disable = function() {
+        this._enabled = false;
+      };
+    }
+
+    function CoffeeMachine(power) {
+      Machine.apply(this, arguments);
+
+      var waterAmount = 0;
+      var timerId;
+
+      this.setWaterAmount = function(amount) {
+        waterAmount = amount;
+      };
+
+      function onReady() {
+        alert('Кофе готов!');
+      }
+
+      var parentDisable = this.disable;
+      this.disable = function() {
+        parentDisable.call(this);
+        clearTimeout(timerId);
+      }
+
+      this.run = function() {
+        if (!this._enabled) {
+          throw new Error("Кофеварка выключена");
+        }
+        timerId = setTimeout(onReady, 1000);
+      };
+
+    }
+
+    var coffeeMachine = new CoffeeMachine(10000);
+    coffeeMachine.enable();
+    coffeeMachine.run();
+    coffeeMachine.disable(); // остановит работу, ничего не выведет
+
+////////////////////////////////////////////////////////////////
+
+/*#159*/
+
+function Fridge(power) {
+  // унаследовать
+  Machine.apply(this, arguments);
+
+  var food = []; // приватное свойство food
+
+  this.addFood = function() {
+    if (!this._enabled) {
+      throw new Error("Холодильник выключен");
+    }
+    if (food.length + arguments.length > this._power / 100) {
+      throw new Error("Нельзя добавить, не хватает мощности");
+    }
+    for (var i = 0; i < arguments.length; i++) {
+      food.push(arguments[i]); // добавить всё из arguments
+    }
+  };
+
+  this.getFood = function() {
+    // копируем еду в новый массив, чтобы манипуляции с ним не меняли food
+    return food.slice();
+  };
+
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#160*/
+
+function Machine(power) {
+  this._power = power;
+  this._enabled = false;
+
+  var self = this;
+
+  this.enable = function() {
+    self._enabled = true;
+  };
+
+  this.disable = function() {
+    self._enabled = false;
+  };
+}
+
+function Fridge(power) {
+  // унаследовать
+  Machine.apply(this, arguments);
+
+  var food = []; // приватное свойство food
+
+  this.addFood = function() {
+    if (!this._enabled) {
+      throw new Error("Холодильник выключен");
+    }
+    if (food.length + arguments.length >= this._power / 100) {
+      throw new Error("Нельзя добавить, не хватает мощности");
+    }
+    for (var i = 0; i < arguments.length; i++) {
+      food.push(arguments[i]); // добавить всё из arguments
+    }
+
+  };
+
+  this.getFood = function() {
+    // копируем еду в новый массив, чтобы манипуляции с ним не меняли food
+    return food.slice();
+  };
+
+  this.filterFood = function(filter) {
+    return food.filter(filter);
+  };
+
+  this.removeFood = function(item) {
+    var idx = food.indexOf(item);
+    if (idx != -1) food.splice(idx, 1);
+  };
+}
+
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood({
+  title: "котлета",
+  calories: 100
+});
+fridge.addFood({
+  title: "сок",
+  calories: 30
+});
+fridge.addFood({
+  title: "зелень",
+  calories: 10
+});
+fridge.addFood({
+  title: "варенье",
+  calories: 150
+});
+
+var dietItems = fridge.filterFood(function(item) {
+  return item.calories < 50;
+});
+
+fridge.removeFood("нет такой еды"); // без эффекта
+alert( fridge.getFood().length ); // 4
+
+dietItems.forEach(function(item) {
+  alert( item.title ); // сок, зелень
+  fridge.removeFood(item);
+});
+
+alert( fridge.getFood().length ); // 2
+
+////////////////////////////////////////////////////////////////
+
+/*#161*/
+
+function Machine(power) {
+  this._power = power;
+  this._enabled = false;
+
+  var self = this;
+
+  this.enable = function() {
+    self._enabled = true;
+  };
+
+  this.disable = function() {
+    self._enabled = false;
+  };
+}
+
+function Fridge(power) {
+  Machine.apply(this, arguments);
+
+  var food = []; // приватное свойство food
+
+  this.addFood = function() {
+    if (!this._enabled) {
+      throw new Error("Холодильник выключен");
+    }
+    if (food.length + arguments.length >= this._power / 100) {
+      throw new Error("Нельзя добавить, не хватает мощности");
+    }
+    for (var i = 0; i < arguments.length; i++) {
+      food.push(arguments[i]); // добавить всё из arguments
+    }
+
+  };
+
+  this.getFood = function() {
+    // копируем еду в новый массив, чтобы манипуляции с ним не меняли food
+    return food.slice();
+  };
+
+  this.filterFood = function(filter) {
+    return food.filter(filter);
+  };
+
+  this.removeFood = function(item) {
+    var idx = food.indexOf(item);
+    if (idx != -1) food.splice(idx, 1);
+  };
+
+  var parentDisable = this.disable;
+  this.disable = function() {
+    if (food.length) {
+      throw new Error("Нельзя выключить: внутри еда");
+    }
+    parentDisable();
+  };
+}
+
+var fridge = new Fridge(500);
+fridge.enable();
+fridge.addFood("кус-кус");
+fridge.disable(); // ошибка, в холодильнике есть еда
+
+////////////////////////////////////////////////////////////////
+
+/*#162*/
+
+true //, свойство взято из rabbit.
+null //свойство взято из animal.
+undefined //свойства больше нет.
+
+////////////////////////////////////////////////////////////////
+
+/*#163*/
+
+/*Ответ: свойство будет записано в rabbit.
+
+Если коротко – то потому что this будет указывать на rabbit, а прототип при записи не используется.
+
+Если в деталях – посмотрим как выполняется rabbit.eat():
+
+Интерпретатор ищет rabbit.eat, чтобы его вызвать. Но свойство eat отсутствует в объекте rabbit, поэтому он идет по ссылке rabbit.__proto__ и находит это свойство там.
+
+
+Функция eat запускается. Контекст ставится равным объекту перед точкой, т.е. this = rabbit.
+
+Итак – получается, что команда this.full = true устанавливает свойство full в самом объекте rabbit. Итог:
+
+
+Эта задача демонстрирует, что несмотря на то, в каком прототипе находится свойство, это никак не влияет на установку this, которая осуществляется по своим, независимым правилам.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#164*/
+
+//Расставим __proto__:
+
+ var head = {
+  glasses: 1
+};
+
+var table = {
+  pen: 3
+};
+table.__proto__ = head;
+
+var bed = {
+  sheet: 1,
+  pillow: 2
+};
+bed.__proto__ = table;
+
+var pockets = {
+  money: 2000
+};
+pockets.__proto__ = bed;
+
+alert( pockets.pen ); // 3
+alert( bed.glasses ); // 1
+alert( table.money ); // undefined
+//В современных браузерах, с точки зрения производительности, нет разницы, брать свойство из объекта или прототипа. Они запоминают, где было найдено свойство и в следующий раз при запросе, к примеру, pockets.glasses начнут искать сразу в прототипе (head).
+
+////////////////////////////////////////////////////////////////
+
+/*#165*/
+
+/*Результат: true, из прототипа
+
+Результат: true. Свойство prototype всего лишь задаёт __proto__ у новых объектов. Так что его изменение не повлияет на rabbit.__proto__. Свойство eats будет получено из прототипа.
+
+Результат: false. Свойство Rabbit.prototype и rabbit.__proto__ указывают на один и тот же объект. В данном случае изменения вносятся в сам объект.
+
+Результат: true, так как delete rabbit.eats попытается удалить eats из rabbit, где его и так нет. А чтение в alert произойдёт из прототипа.
+
+Результат: undefined. Удаление осуществляется из самого прототипа, поэтому свойство rabbit.eats больше взять неоткуда.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#166*/
+
+//Можно прототипно унаследовать от options и добавлять/менять опции в наследнике:
+
+ function Menu(options) {
+  options = Object.create(options);
+  options.width = 300;
+
+  alert("width: " + options.width); // возьмёт width из наследника
+  alert("height: " + options.height); // возьмёт height из исходного объекта
+}
+
+var options = {
+  width: 100,
+  height: 200
+};
+
+var menu = new Menu(options);
+
+alert("original width: " + options.width); // width исходного объекта
+alert("original height: " + options.height); // height исходного объекта
+//Все изменения будут происходить не в исходном options, а в его наследнике, при этом options останется незатронутым.
+
+////////////////////////////////////////////////////////////////
+
+/*#167*/
+
+/*Первый вызов ставит this == rabbit, остальные ставят this равным Rabbit.prototype, следуя правилу "this – объект перед точкой".
+
+Так что только первый вызов выведет Rabbit, в остальных он будет undefined.
+
+Код для проверки:*/
+
+ function Rabbit(name) {
+  this.name = name;
+}
+Rabbit.prototype.sayHi = function() {
+  alert( this.name );
+};
+
+var rabbit = new Rabbit("Rabbit");
+
+rabbit.sayHi();
+Rabbit.prototype.sayHi();
+Object.getPrototypeOf(rabbit).sayHi();
+rabbit.__proto__.sayHi();
+/*Совместимость
+Первый вызов работает везде.
+Второй вызов работает везде.
+Третий вызов не будет работать в IE8-, там нет метода getPrototypeOf
+Четвёртый вызов – самый «несовместимый», он не будет работать в IE10-, ввиду отсутствия свойства __proto__.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#168*/
+
+/*Да, можем, но только если уверены, что кто-то позаботился о том, чтобы значение constructor было верным.
+
+В частности, без вмешательства в прототип код точно работает, например:*/
+
+ function User(name) {
+  this.name = name;
+}
+
+var obj = new User('Вася');
+var obj2 = new obj.constructor('Петя');
+
+alert( obj2.name ); // Петя (сработало)
+//Сработало, так как User.prototype.constructor == User.
+
+//Но если кто-то, к примеру, перезапишет User.prototype и забудет указать constructor, то такой фокус не пройдёт, например:
+
+function User(name) {
+    this.name = name;
+  }
+User.prototype = {}; // (*)
+
+var obj = new User('Вася');
+var obj2 = new obj.constructor('Петя');
+
+alert( obj2.name ); // undefined
+/*Почему obj2.name равен undefined? Вот как это работает:
+
+При вызове new obj.constructor('Петя'), obj ищет у себя свойство constructor – не находит.
+Обращается к своему свойству __proto__, которое ведёт к прототипу.
+Прототипом будет (*), пустой объект.
+Далее здесь также ищется свойство constructor – его нет.
+Где ищем дальше? Правильно – у следующего прототипа выше, а им будет Object.prototype.
+Свойство Object.prototype.constructor существует, это встроенный конструктор объектов, который, вообще говоря, не предназначен для вызова с аргументом-строкой, поэтому создаст совсем не то, что ожидается, но то же самое, что вызов new Object('Петя'), и у такого объекта не будет name.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#169*/
+
+Function.prototype.defer = function(ms) {
+  setTimeout(this, ms);
+}
+
+function f() {
+  alert( "привет" );
+}
+
+f.defer(1000); // выведет "привет" через 1 секунду
+
+////////////////////////////////////////////////////////////////
+
+/*#170*/
+
+Function.prototype.defer = function(ms) {
+  var f = this;
+  return function() {
+    var args = arguments,
+      context = this;
+    setTimeout(function() {
+      f.apply(context, args);
+    }, ms);
+  }
+}
+
+// проверка
+function f(a, b) {
+  alert( a + b );
+}
+
+f.defer(1000)(1, 2); // выведет 3 через 1 секунду.
+
+////////////////////////////////////////////////////////////////
+
+/*#171*/
+
+function CoffeeMachine(power) {
+  // свойства конкретной кофеварки
+  this._power = power;
+  this._waterAmount = 0;
+}
+
+// свойства и методы для всех объектов класса
+CoffeeMachine.prototype.WATER_HEAT_CAPACITY = 4200;
+
+CoffeeMachine.prototype._getTimeToBoil = function() {
+  return this._waterAmount * this.WATER_HEAT_CAPACITY * 80 / this._power;
+};
+
+CoffeeMachine.prototype.run = function() {
+  setTimeout(function() {
+    alert( 'Кофе готов!' );
+  }, this._getTimeToBoil());
+};
+
+CoffeeMachine.prototype.setWaterAmount = function(amount) {
+  this._waterAmount = amount;
+};
+
+var coffeeMachine = new CoffeeMachine(10000);
+coffeeMachine.setWaterAmount(50);
+coffeeMachine.run();
+
+////////////////////////////////////////////////////////////////
+
+/*#172*/
+
+/*Почему возникает проблема
+Давайте подробнее разберем происходящее при вызове speedy.found("яблоко"):
+
+Интерпретатор ищет свойство found в speedy. Но speedy – пустой объект, т.к. new Hamster ничего не делает с this.
+Интерпретатор идёт по ссылке speedy.__proto__ (==Hamster.prototype) и находят там метод found, запускает его.
+Значение this устанавливается в объект перед точкой, т.е. в speedy.
+Для выполнения this.food.push() нужно найти свойство this.food. Оно отсутствует в speedy, но есть в speedy.__proto__.
+Значение "яблоко" добавляется в speedy.__proto__.food.
+У всех хомяков общий живот! Или, в терминах JavaScript, свойство food изменяется в прототипе, который является общим для всех объектов-хомяков.
+
+Заметим, что этой проблемы не было бы при простом присваивании:*/
+
+this.food = something;
+/*В этом случае значение записалось бы в сам объект, без поиска found в прототипе.
+
+Проблема возникает только со свойствами-объектами в прототипе.
+
+Для исправления проблемы нужно дать каждому хомяку свой живот. Это можно сделать, присвоив его в конструкторе.*/
+
+function Hamster() {
+  this.food = [];
+}
+
+Hamster.prototype.found = function(something) {
+  this.food.push(something);
+};
+
+var speedy = new Hamster();
+var lazy = new Hamster();
+
+speedy.found("яблоко");
+speedy.found("орех");
+
+alert(speedy.food.length) // 2
+alert(lazy.food.length) // 0(!)
+//Теперь всё в порядке. У каждого хомяка – свой живот.
+
+////////////////////////////////////////////////////////////////
+
+/*#173*/
+
+//Ошибка в строке:
+
+Rabbit.prototype = Animal.prototype;
+/*Эта ошибка приведёт к тому, что Rabbit.prototype и Animal.prototype – один и тот же объект. В результате методы Rabbit будут помещены в него и, при совпадении, перезапишут методы Animal.
+
+Получится, что все животные прыгают, вот пример:*/
+
+function Animal(name) {
+  this.name = name;
+}
+
+Animal.prototype.walk = function() {
+  alert("ходит " + this.name);
+};
+
+function Rabbit(name) {
+  this.name = name;
+}
+Rabbit.prototype = Animal.prototype;
+
+Rabbit.prototype.walk = function() {
+  alert("прыгает! и ходит: " + this.name);
+};
+
+var animal = new Animal("Хрюшка");
+animal.walk(); // прыгает! и ходит Хрюшка
+//Правильный вариант этой строки:
+
+Rabbit.prototype = Object.create(Animal.prototype);
+//Если так написать, то в Rabbit.prototype будет отдельный объект, который прототипно наследует от Animal.prototype, но может содержать и свои свойства, специфичные для кроликов.
+
+////////////////////////////////////////////////////////////////
+
+/*#174*/
+
+/*Ошибка – в том, что метод walk присваивается в конструкторе Animal самому объекту вместо прототипа.
+
+Поэтому, если мы решим перезаписать этот метод своим, специфичным для кролика, то он не сработает:*/
+
+// ...
+
+// записывается в прототип
+Rabbit.prototype.walk = function() {
+  alert( "прыгает " + this.name );
+};
+/*Метод this.walk из Animal записывается в сам объект, и поэтому он всегда будет первым, игнорируя цепочку прототипов.
+
+Правильно было бы определять walk как Animal.prototype.walk.
+
+Тем более, что этот метод является общим для всех объектов, тратить память и время на запись его в каждый конструктор определённо ни к чему.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#175*/
+
+function Clock(options) {
+  this._template = options.template;
+}
+
+Clock.prototype._render = function() {
+  var date = new Date();
+
+  var hours = date.getHours();
+  if (hours < 10) hours = '0' + hours;
+
+  var min = date.getMinutes();
+  if (min < 10) min = '0' + min;
+
+  var sec = date.getSeconds();
+  if (sec < 10) sec = '0' + sec;
+
+  var output = this._template.replace('h', hours).replace('m', min).replace('s', sec);
+
+  console.log(output);
+};
+
+Clock.prototype.stop = function() {
+  clearInterval(this._timer);
+};
+
+Clock.prototype.start = function() {
+  this._render();
+  var self = this;
+  this._timer = setInterval(function() {
+    self._render();
+  }, 1000);
+};
+
+////////////////////////////////////////////////////////////////
+
+/*#176*/
+
+//Наследник:
+
+function ExtendedClock(options) {
+  Clock.apply(this, arguments);
+  this._precision = +options.precision || 1000;
+}
+
+ExtendedClock.prototype = Object.create(Clock.prototype);
+
+ExtendedClock.prototype.start = function() {
+  this._render();
+  var self = this;
+  this._timer = setInterval(function() {
+    self._render();
+  }, this._precision);
+};
+
+////////////////////////////////////////////////////////////////
+
+/*#177*/
+
+/*Обратите внимание: константы состояний перенесены в прототип, чтобы AnimatingMenu их тоже унаследовал.
+
+Открыть решение в песочнице.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#178*/
+
+/*Нет, не распознает, выведет false.
+
+Свойство constructor содержится в prototype функции по умолчанию, интерпретатор не поддерживает его корректность. Посмотрим, чему оно равно и откуда оно будет взято в данном случае.
+
+Порядок поиска свойства rabbit.constructor, по цепочке прототипов:
+
+rabbit – это пустой объект, в нём нет.
+Rabbit.prototype – в него при помощи Object.create записан пустой объект, наследующий от Animal.prototype. Поэтому constructor'а в нём также нет.
+Animal.prototype – у функции Animal свойство prototype никто не менял. Поэтому оно содержит Animal.prototype.constructor == Animal.*/
+ 
+function Animal() {}
+
+function Rabbit() {}
+Rabbit.prototype = Object.create(Animal.prototype);
+
+var rabbit = new Rabbit();
+
+alert( rabbit.constructor == Rabbit ); // false
+alert( rabbit.constructor == Animal ); // true
+
+////////////////////////////////////////////////////////////////
+
+/*#179*/
+
+/*Да, это выглядит достаточно странно, поскольку объект a не создавался функцией B.
+
+Но методу instanceof на самом деле вообще не важна функция. Он смотрит на её prototype и сверяет его с цепочкой __proto__ объекта.
+
+В данном случае a.__proto__ == B.prototype, поэтому instanceof возвращает true.
+
+По логике instanceof именно прототип задаёт «тип объекта», поэтому instanceof работает именно так.*/
+
+////////////////////////////////////////////////////////////////
+
+/*#180*/
+
+/*Да, распознает.
+
+Он проверяет наследование с учётом цепочки прототипов.*/
+
+ function Animal() {}
+
+function Rabbit() {}
+Rabbit.prototype = Object.create(Animal.prototype);
+
+var rabbit = new Rabbit();
+
+alert( rabbit instanceof Rabbit ); // true
+alert( rabbit instanceof Animal ); // true
+alert( rabbit instanceof Object ); // true

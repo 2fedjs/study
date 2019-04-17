@@ -321,6 +321,9 @@ alert( number.toLocaleString() ); // 123 456 789
 o = new Object(); // (1)
 o = {}; // пустые фигурные скобки (2)
 
+//создаёт новый объект с указанными объектом прототипа и свойствами.
+Object.create(Shape.prototype);
+
 //проверить, есть ли в объекте свойство с определенным ключом.
 if ("name" in person) //причем имя свойства – в виде строки
 
@@ -456,6 +459,103 @@ Object.isSealed(obj)
 //Возвращает true, если добавление и удаление свойств объекта запрещено, и все текущие свойства являются configurable: false.
 Object.isFrozen(obj)
 //Возвращает true, если добавление, удаление и изменение свойств объекта запрещено, и все текущие свойства являются configurable: false, writable: false.
+
+//Прототип proto
+var animal = {
+  eats: true
+};
+var rabbit = {
+  jumps: true
+};
+
+rabbit.__proto__ = animal;
+
+// в rabbit можно найти оба свойства
+alert( rabbit.jumps ); // true
+alert( rabbit.eats ); // true
+
+//Метод hasOwnProperty
+//Вызов obj.hasOwnProperty(prop) возвращает true, если свойство prop принадлежит самому объекту obj, иначе false.
+var animal = {
+  eats: true
+};
+
+var rabbit = {
+  jumps: true,
+  __proto__: animal
+};
+
+alert( rabbit.hasOwnProperty('jumps') ); // true: jumps принадлежит rabbit
+
+alert( rabbit.hasOwnProperty('eats') ); // false: eats не принадлежит
+
+//перебрать свойства самого объекта
+for (var key in rabbit) {
+  if (!rabbit.hasOwnProperty(key)) continue; // пропустить "не свои" свойства
+  alert( key + " = " + rabbit[key] ); // выводит только "jumps"
+}
+
+//Object.create(null)
+var data = Object.create(null);
+//не имеет прототипа, а значит в нём нет лишних свойств
+
+//Чтение: 
+Object.getPrototypeOf(obj)
+//Запись: 
+Object.setPrototypeOf(obj, proto)
+
+//prototype
+//При создании объекта через new, в его прототип __proto__ записывается ссылка из prototype функции-конструктора.
+//Свойство prototype имеет смысл только у конструктора
+//Свойство с именем prototype можно указать на любом объекте, но особый смысл оно имеет, лишь если назначено функции-конструктору.
+//Само по себе, без вызова оператора new, оно вообще ничего не делает, его единственное назначение – указывать __proto__ для новых объектов.
+
+//Свойство constructor
+function Rabbit() {}
+
+Rabbit.prototype = {
+  constructor: Rabbit
+};
+//ровно такой же – генерируется автоматически.
+
+function Rabbit(name) {
+  this.name = name;
+  alert( name );
+}
+
+var rabbit = new Rabbit("Кроль");
+var rabbit2 = new rabbit.constructor("Крольчиха");
+
+//Эта возможность бывает полезна, когда, получив объект, мы не знаем в точности, какой у него был конструктор (например, сделан вне нашего кода), а нужно создать такой же.
+
+// при перезаписи гарантировать наличие constructor вручную:
+Rabbit.prototype = {
+  jumps: true,
+  constructor: Rabbit
+};
+
+//Наследование в наших классах
+Rabbit.prototype.__proto__ = Animal.prototype;
+
+// в IE10- задаём наследование
+Rabbit.prototype = Object.create(Animal.prototype); //присваивается сразу после объявления конструктора, иначе он перезатрёт уже записанные в прототип методы.
+Rabbit.prototype.constructor = Rabbit;
+
+//Вызов конструктора родителя
+function Rabbit(name) {
+  Animal.apply(this, arguments);
+}
+
+//Расширить метод родителя
+ Rabbit.prototype.run = function() {
+   // вызвать метод родителя, передав ему текущие аргументы
+   Animal.prototype.run.apply(this, arguments);
+   this.jump();
+ }
+
+ //instanceof
+//возвращает true, если объект принадлежит классу Constructor или классу, наследующему от него.
+alert( rabbit instanceof Rabbit ); // true, верно
 
 ////////////////////////////////////////////////////////////////
 
@@ -1156,6 +1256,8 @@ alert( double(5) ); // = mul(2, 5) = 10
 
 console.time(метка) // включить внутренний хронометр браузера с меткой.
 console.timeEnd(метка) // выключить внутренний хронометр браузера с меткой и вывести результат.
+
+console.dir([1,2,3]) //для доступа к свойствам
 
 ////////////////////////////////////////////////////////////////
 
