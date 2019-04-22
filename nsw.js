@@ -4981,3 +4981,41 @@ var rabbit = new Rabbit();
 alert( rabbit instanceof Rabbit ); // true
 alert( rabbit instanceof Animal ); // true
 alert( rabbit instanceof Object ); // true
+
+////////////////////////////////////////////////////////////////
+
+/*#181*/
+
+function delay(ms) {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#182*/
+
+/*Для последовательной загрузки нужно организовать промисы в цепочку, чтобы они выполнялись строго – один после другого.
+
+Вот код, который это делает:*/
+
+// начало цепочки
+let chain = Promise.resolve();
+
+let results = [];
+
+// в цикле добавляем задачи в цепочку
+urls.forEach(function(url) {
+  chain = chain
+    .then(() => httpGet(url))
+    .then((result) => {
+      results.push(result);
+    });
+});
+
+// в конце — выводим результаты
+chain.then(() => {
+  alert(results);
+});
+//Использование Promise.resolve() как начала асинхронной цепочки – очень распространённый приём.
