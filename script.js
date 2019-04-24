@@ -68,6 +68,7 @@ alert( now );
 // 24 часа после 01.01.1970 GMT+0
 var Jan02_1970 = new Date(3600 * 24 * 1000);
 alert( Jan02_1970 )
+gfg = 6;
 
 new Date(datestring)
 //Если единственный аргумент – строка, используется вызов Date.parse для чтения даты из неё.
@@ -1329,6 +1330,8 @@ var nameLengths = names.map(function(name) {
 // получили массив с длинами
 alert( nameLengths ); // 4,3,10
 
+names.map(name => name.toUpperCase);
+
 /*#------------Метод every------------*/
 //возвращает true, если вызов callback вернёт true для каждого элемента arr
 function isBigEnough(element, index, array) {
@@ -1360,7 +1363,7 @@ arr – обрабатываемый массив.*/
 /*#------------Метод reduceRight------------*/
 //сворачивает все элементы справа налево в одно значение
 var a = ['h','e','l','l','o',]; 
-var as = a.reduceRight((sum,elem)=>sum+elem);
+var as = a.reduceRight((sum,elem)=>sum+elem,0); //ноль для работы с пустыми массивами
 
 /*#------------Псевдомассив аргументов "arguments"------------*/
 function sayHi() {
@@ -2241,12 +2244,41 @@ export class User {
 export function sayHi() {
   alert("Hello!");
 };
+////////////
+
+function hello(who) {
+  return "Let me introduce: " + who;
+}
+
+export hello;
 
 /*#------------import------------*/
 
 import {one, two} from "./nums";
 //"./nums" – модуль, как правило это путь к файлу модуля.
 //one, two – импортируемые переменные, которые должны быть обозначены в nums словом export.
+
+import hello from "bar";
+////////////
+var hungry = "hippo";
+
+function awesome() {
+  console.log(
+    hello( hungry ).toUpperCase()
+  );
+}
+
+export awesome;
+
+/*#------------Модули------------*/
+module foo from "foo";
+module bar from "bar";
+
+console.log(
+  bar.hello( "rhino" )
+); // Let me introduce: rhino
+
+foo.awesome(); // LET ME INTRODUCE: HIPPO
 
 ////////////////////////////////////////////////////////////////
 
@@ -2256,6 +2288,12 @@ console.time(метка) // включить внутренний хрономе
 console.timeEnd(метка) // выключить внутренний хронометр браузера с меткой и вывести результат.
 
 console.dir([1,2,3]) //для доступа к свойствам
+
+//Последний элемент, выбранный во вкладке Elements, доступен в консоли как $0, предыдущий – $1 и так далее.
+
+$0.style.backgroundColor = 'red';
+$$("div.my") // ищет все элементы в DOM по данному CSS-селектору.
+$("div.my") // ищет первый элемент в DOM по данному CSS-селектору.
 
 ////////////////////////////////////////////////////////////////
 
@@ -2454,6 +2492,15 @@ describe("pow", function() {
 ////////////////////////////////////////////////////////////////
 
 /*#window*/
+
+window.innerWidth/innerHeight // хранят текущий размер окна браузера. игнорируют наличие полосы прокрутки.
+
+alert( 'Текущая прокрутка сверху: ' + window.pageYOffset );
+alert( 'Текущая прокрутка слева: ' + window.pageXOffset );
+ window.scrollBy(x,y)   //прокручивает страницу относительно текущих координат.
+ window.scrollTo(pageX,pageY). // прокручивает страницу к указанным координатам относительно документа.
+
+ alert( "Браузер находится на " + window.screenX + "," + window.screenY );
 
 /*#------------Создать переменную------------*/
 
@@ -2703,3 +2750,359 @@ try {
 } finally {
   alert( 'finally' );
 }
+
+////////////////////////////////////////////////////////////////
+
+/*#document*/
+
+document.open() //открывает поток документа
+document.write('<span> </span>'); //Пишет строку в поток документа, открытый с помощью document.open().
+//работает только пока HTML-страница находится в процессе загрузки
+//дописывает текст в текущее место HTML ещё до того, как браузер построит из него DOM.
+
+document.writeln(str)  //добавляет после str символ перевода строки "\n".
+
+////////////////////////////////////////////////////////////////
+
+/*#nodes*/
+
+var textElem = document.createTextNode('Тут был я'); //Создает новый *текстовый* узел с данным текстом:
+
+// Всевозможные значения nodeType
+  const unsigned short ELEMENT_NODE = 1;
+  const unsigned short ATTRIBUTE_NODE = 2;
+  const unsigned short TEXT_NODE = 3;
+  const unsigned short CDATA_SECTION_NODE = 4;
+  const unsigned short ENTITY_REFERENCE_NODE = 5;
+  const unsigned short ENTITY_NODE = 6;
+  const unsigned short PROCESSING_INSTRUCTION_NODE = 7;
+  const unsigned short COMMENT_NODE = 8;
+  const unsigned short DOCUMENT_NODE = 9;
+  const unsigned short DOCUMENT_TYPE_NODE = 10;
+  const unsigned short DOCUMENT_FRAGMENT_NODE = 11;
+  const unsigned short NOTATION_NODE = 12;
+
+  if (childNodes[i].nodeType != 1) continue;
+
+/*#------------Навигация------------*/
+
+//Список детей – только для чтения!
+document.body.childNodes //Псевдо-массив childNodes хранит все дочерние элементы, включая текстовые.
+
+//Свойства firstChild и lastChild обеспечивают быстрый доступ к первому и последнему элементу.
+elem.childNodes[0] === elem.firstChild
+elem.childNodes[elem.childNodes.length - 1] === elem.lastChild
+
+alert( document.documentElement.parentNode ); // document
+
+alert( document.body.nodeName ); // BODY
+
+document.head.previousSibling
+div.nextSibling
+list.firstChild
+
+/*#------------Содержимое------------*/
+
+alert( document.body.childNodes[i].data ); //Содержимое других узлов, например, текстовых или комментариев, доступно на чтение и запись через свойство data.
+
+/*#------------работа с DOM------------*/
+
+ var div2 = div.cloneNode(true); //создаст «глубокую» копию элемента – вместе с атрибутами, включая подэлементы. Если же вызвать с аргументом false, то копия будет сделана без дочерних элементов. Это нужно гораздо реже.
+
+ node.append(...nodes) // вставляет nodes в конец node,
+node.prepend(...nodes) // вставляет nodes в начало node,
+node.after(...nodes) // вставляет nodes после узла node,
+node.before(...nodes) // вставляет nodes перед узлом node,
+node.replaceWith(...nodes) // вставляет nodes вместо node.
+
+////////////////////////////////////////////////////////////////
+
+/*#Element*/
+
+var div = document.createElement('div'); //Создание элемента
+
+/*#------------Навигация------------*/
+
+document.body // возвращает элемент body
+document.head
+document.documentElement //получить узел HTML
+
+alert( document.body.tagName ); // BODY
+
+alert( document.documentElement.parentElement ); // null
+
+elem.children // только дочерние узлы-элементы, то есть соответствующие тегам.
+elem.firstElementChild, elem.lastElementChild // соответственно, первый и последний дети-элементы.
+elem.previousElementSibling, nextElementSibling // соседи-элементы.
+elem.parentElement // родитель-элемент.
+
+
+//Если элементу назначен специальный атрибут id, то можно получить его прямо по переменной с именем из значения id.
+
+/*<div id="content-holder">
+  <div id="content">Элемент</div>
+</div>
+
+<script>
+  alert( content ); // DOM-элемент
+  alert( window['content-holder'] ); // в имени дефис, поэтому через [...]
+</script>*/
+
+var elem = document.getElementById('content'); //возвращает элемеент по id
+
+var elements = document.getElementsByTagName('div'); //ищет все элементы с заданным тегом tag внутри элемента elem и возвращает их в виде списка.
+
+//в отличие от getElementById, который существует только в контексте document, метод getElementsByTagName может искать внутри любого элемента.
+
+// получить все элементы документа
+document.getElementsByTagName('*');
+
+// получить всех потомков элемента elem:
+elem.getElementsByTagName('*');
+
+var elems = document.getElementsByName('age'); //позволяет получить все элементы с данным атрибутом name.
+
+var articles = document.getElementsByClassName('article'); //возвращает коллекцию элементов с классом className
+
+//Результаты поиска getElementsBy* – живые! При изменении документа – изменяется и результат запроса. результат запросов getElementsBy* – это не массив, а специальный объект, имеющий тип NodeList или HTMLCollection. Он похож на массив, так как имеет нумерованные элементы и длину, но внутри это не готовая коллекция, а «живой поисковой запрос».
+
+var elements = document.querySelectorAll('ul > li:last-child'); //возвращает все элементы внутри elem, удовлетворяющие CSS-селектору css.
+
+var elements = document.querySelector('ul'); //возвращает не все, а только первый элемент, соответствующий CSS-селектору css.
+
+//ничего не ищет, а проверяет, удовлетворяет ли elem селектору css. Он возвращает true либо false.
+if (elems[i].matches('a[href$="zip"]')) {
+      alert( "Ссылка на архив: " + elems[i].href );
+    }
+
+ alert(numberSpan.closest('li').className) // ищет ближайший элемент выше по иерархии DOM, подходящий под CSS-селектор css. Сам элемент тоже включается в поиск.
+ 
+
+parent.contains(child);  //Возвращает true, если parent содержит child или parent == child.
+
+var result = nodeA.compareDocumentPosition(nodeB); //предоставляет одновременно информацию и о содержании и об относительном порядке элементов.
+
+/*Возвращаемое значение – битовая маска (см. Побитовые операторы), биты в которой означают следующее:
+
+Биты  Число Значение
+000000  0   nodeA и nodeB -- один и тот же узел
+000001  1   Узлы в разных документах (или один из них не в документе)
+000010  2   nodeB предшествует nodeA (в порядке обхода документа)
+000100  4   nodeA предшествует nodeB
+001000  8   nodeB содержит nodeA
+010000  16  nodeA содержит nodeB
+100000  32  Зарезервировано для браузера
+*/
+//Понятие «предшествует» – означает не только «предыдущий сосед при общем родителе», но и имеет более общий смысл: "раньше встречается в порядке прямого обхода дерева документа.
+
+  // 1. <ul> находится после <p>
+  alert( ul.compareDocumentPosition(p) ); // 2 = 10
+
+  // 2. <p> находится до <ul>
+  alert( p.compareDocumentPosition(ul) ); // 4 = 100
+
+  // 3. <ul> родитель <li>
+  alert( ul.compareDocumentPosition(li) ); // 20 = 10100
+
+  // 4. <ul> потомок <body>
+  alert( ul.compareDocumentPosition(document.body) ); // 10 = 1010
+/*Узлы не вложены один в другой, поэтому стоит только бит «предшествования», отсюда 10.
+То же самое, но обратный порядок узлов, поэтому 100.
+Здесь стоят сразу два бита: 10100 означает, что ul одновременно содержит li и является его предшественником, то есть при прямом обходе дерева документа сначала встречается ul, а потом li.
+Аналогично предыдущему, 1010 означает, что document.body содержит ul и предшествует ему.*/
+//Проверить конкретное условие, например, "nodeA содержит nodeB", можно при помощи битовых операций, в данном случае: 
+nodeA.compareDocumentPosition(nodeB) & 16
+
+//TABLE
+table.rows // коллекция строк TR таблицы.
+table.caption/tHead/tFoot // ссылки на элементы таблицы CAPTION, THEAD, TFOOT.
+table.tBodies // коллекция элементов таблицы TBODY, по спецификации их может быть несколько.
+
+//THEAD/TFOOT/TBODY
+tbody.rows // коллекция строк TR секции.
+
+//TR
+tr.cells // коллекция ячеек TD/TH
+tr.sectionRowIndex // номер строки в текущей секции THEAD/TBODY
+tr.rowIndex // номер строки в таблице
+
+//TD/TH
+td.cellIndex // номер ячейки в строке
+
+/*#------------Содержимое------------*/
+
+alert( document.body.innerHTML ); //позволяет получить HTML-содержимое элемента в виде строки
+ document.body.innerHTML = 'Новый BODY!'; // заменяем содержимое
+
+ chatDiv.innerHTML += "<div>Привет<img src='smile.gif'/> !</div>"; //осуществляет перезапись
+
+  alert( div.outerHTML ); //содержит HTML элемента целиком. <div>Привет <b>Мир</b></div>
+
+   alert( news.textContent );  //содержит только текст внутри элемента, за вычетом всех <тегов>.
+  document.body.children[1].textContent = name;
+   //возвращает конкатенацию всех текстовых узлов внутри elem
+
+
+
+/*#------------Стили------------*/
+
+document.body.style // возвращает объект, который дает доступ к стилю элемента на чтение и запись.
+document.body.style.background = 'red'; 
+element.style.width="100px"
+elem.style.backgroundColor
+elem.style.zIndex
+elem.style.borderLeftWidth
+elem.style.cssFloat
+button.style.MozBorderRadius = '5px';
+button.style.WebkitBorderRadius = '5px';
+
+elem.style.width="" //сбросить поставленный стиль
+
+elem.style.display = "none"
+
+document.body.style.overflow = "hidden".
+
+var computedStyle = getComputedStyle(document.body); //Для того, чтобы получить текущее используемое значение свойства
+var result = getComputedStyle(h3, ':after').content;
+var result = getComputedStyle(h3, ':after').getPropertyValue('color');
+
+ div.style.cssText="color: red !important; \
+    background-color: yellow; \
+    width: 100px; \
+    text-align: center; \
+    blabla: 5; \
+  ";
+
+lastDiv.hidden = true; //предусмотрен специальный атрибут и свойство для отображения элементов
+
+  message.style.left = coords.left + "px";
+  message.style.top = coords.bottom + "px";
+
+/*Как узнать, какие свойства есть у данного типа элементов?
+
+Это просто. Нужно либо посмотреть список элементов HTML5 и найти в нём интересующий вас элемент и прочитать секцию с interface.*/
+
+//внешние размеры
+elem.offsetParent, //находится ссылка на родительский элемент в смысле отображения на странице.
+elem.offsetLeft/Top //задают смещение относительно offsetParent.
+elem.offsetWidth //содержат «внешнюю» ширину/высоту элемента, то есть его полный размер, включая рамки border.
+elem.offsetHeight
+
+elem.clientTop/Left //ширина левой/правой рамки
+
+elem.clientWidth/Height // размер элемента внутри рамок border.
+//Свойства clientWidth/Height для элемента document.documentElement – это как раз ширина/высота видимой области окна.
+
+
+elem.scrollWidth/Height //свойства clientWidth/clientHeight относятся только к видимой области элемента, а scrollWidth/scrollHeight добавляют к ней прокрученную (которую не видно) по горизонтали/вертикали.
+documentElement.scrollWidth/scrollHeight //полный размер страницы с учётом прокрутки
+
+elem.scrollLeft/scrollTop //ширина/высота невидимой, прокрученной в данный момент, части элемента слева и сверху.
+//можно изменять
+
+elem.scrollIntoView(top) // вызывается на элементе и прокручивает страницу так, чтобы элемент оказался вверху, если параметр top равен true, и внизу, если top равен false. Причем, если параметр top не указан, то он считается равным true.
+
+elem.getBoundingClientRect() //возвращает координаты элемента, под которыми понимаются размеры «воображаемого прямоугольника», который охватывает весь элемент.
+/*Координаты возвращаются в виде объекта со свойствами:
+
+top – Y-координата верхней границы элемента,
+left – X-координата левой границы,
+right – X-координата правой границы,
+bottom – Y-координата нижней границы.*/
+//Координаты относительно окна не учитывают прокрутку, они высчитываются от границ текущей видимой области.
+
+  var rects = elt.getClientRects(); // возвращает коллекцию DOMRectобъектов , которые указывают ограничивающие прямоугольники для каждого пограничного поле CSS в клиенте.
+
+var elem = document.elementFromPoint(x, y); //Возвращает элемент, который находится на координатах (x, y) относительно окна.
+
+/*#------------атрибуты------------*/
+
+  alert( input.type ); // "text"
+  alert( input.id ); // "elem"
+  alert( input.value ); // значение
+input.checked // false <-- может быть только true/false
+input.checked = true; // поставить галочку (при этом атрибут в элементе не появится)
+
+   alert( 'свойство:' + a.href );  // полный URL
+//не тоже самое, что
+alert( 'атрибут:' + a.getAttribute('href') ); // '/'
+
+  elem.hasAttribute(name) // проверяет наличие атрибута
+elem.getAttribute(name) // получает значение атрибута
+elem.setAttribute(name, value) // устанавливает атрибут
+elem.removeAttribute(name) // удаляет атрибут
+
+elem.attributes //получить псевдо-массив всех атрибутов элемента
+
+// имена атрибутов нечувствительны к регистру.
+
+// прочитать класс элемента
+    alert( document.body.className ); // main page
+
+    // поменять класс элемента
+    document.body.className = "class1 class2";
+
+elem.classList.contains("class") // возвращает true/false, в зависимости от того, есть ли у элемента класс class.
+elem.classList.add/remove("class") // добавляет/удаляет класс class
+elem.classList.toggle("class") // если класса class нет, добавляет его, если есть – удаляет.
+
+//к таким атрибутам можно обратиться не только как к атрибутам, но и как к свойствам, при помощи специального свойства dataset:
+/*<div id="elem" data-about="Elephant" data-user-location="street">
+  По улице прошёлся слон. Весьма красив и толст был он.
+</div>
+<script>
+  alert( elem.dataset.about ); // Elephant
+  alert( elem.dataset.userLocation ); // street
+</script>*/
+
+/*#------------работа с DOM------------*/
+
+list.appendChild(newLi); //Добавляет newLi в конец дочерних элементов list.
+list.insertBefore(newLi, list.children[1]); //Вставляет newLi в коллекцию детей list, перед элементом list.children[1].
+
+//Все методы вставки возвращают вставленный узел.
+
+//Удаляет elem из списка детей parentElem.
+parentElem.removeChild(elem)
+
+//удаляет elem и вставляет на его место newElem.
+parentElem.replaceChild(newElem, elem)
+
+elem.remove()
+
+li5.insertAdjacentHTML("beforeBegin", "<li>3</li><li>4</li>"); //
+li5.insertAdjacentHTML("afterBegin", "<li>3</li><li>4</li>"); // внутрь elem, в самое начало.
+li5.insertAdjacentHTML("beforeEnd", "<li>3</li><li>4</li>"); // внутрь elem, в конец.
+li5.insertAdjacentHTML("afterEnd", "<li>3</li><li>4</li>"); // после elem.
+
+elem.insertAdjacentElement(where, newElem) // вставляет в произвольное место не строку HTML, а элемент newElem.
+elem.insertAdjacentText(where, text) // создаёт текстовый узел из строки text и вставляет его в указанное место относительно elem.
+
+var fragment = document.createDocumentFragment(); //чтобы вставить пачку узлов единовременно
+fragment.appendChild(node);
+fragment.cloneNode(true); // клонирование с подэлементами
+//когда DocumentFragment вставляется в DOM – то он исчезает, а вместо него вставляются его дети. 
+ul.appendChild(fragment) // фрагмент растворится, и в DOM вставятся именно LI, причём в том же порядке, в котором были во фрагменте.
+
+////////////////////////////////////////////////////////////////
+
+/*#navigator*/
+
+navigator.userAgent //содержит информацию о браузере
+navigator.platform //содержит информацию о платформе, позволяет различать Windows/Linux/Mac
+
+////////////////////////////////////////////////////////////////
+
+/*#location*/
+
+alert( location.href ); // выведет текущий адрес
+
+////////////////////////////////////////////////////////////////
+
+/*#screen*/
+
+// общая ширина/высота
+alert( screen.width + ' x ' + screen.height );
+
+// доступная ширина/высота (за вычетом таскбара и т.п.)
+alert( screen.availWidth + ' x ' + screen.availHeight );

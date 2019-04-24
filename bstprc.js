@@ -222,6 +222,16 @@ let numbers = [2, 3, 15];
 // Этот вызов аналогичен Math.max(2, 3, 15)
 let max = Math.max(...numbers);
 
+//определить размер страницы с учетом прокрутки можно, взяв максимум из нескольких свойств:
+
+ var scrollHeight = Math.max(
+  document.body.scrollHeight, document.documentElement.scrollHeight,
+  document.body.offsetHeight, document.documentElement.offsetHeight,
+  document.body.clientHeight, document.documentElement.clientHeight
+);
+
+alert( 'Высота с учетом прокрутки: ' + scrollHeight );
+
 ////////////////////////////////////////////////////////////////
 
 /*#декораторы*/
