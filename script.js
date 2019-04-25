@@ -270,6 +270,11 @@ alert( user[Symbol.for("isAdmin")] );
 Symbol.toPrimitive // идентификатор для свойства, задающего функцию преобразования объекта в примитив.
 Symbol.iterator // идентификатор для свойства, задающего функцию итерации по объекту.
 
+//Пример
+
+let s = Symbol("id");
+user[s] = 123;
+
 ////////////////////////////////////////////////////////////////
 
 /*#коллекции*/
@@ -646,6 +651,8 @@ alert( Object.keys(obj) ); // a,b
 //возвращает все:
 alert( Object.getOwnPropertyNames(obj) ); // a, b, internal
 
+Reflect.owmKeys(user) //возвращает в том числе символы
+
 //Возвращает дескриптор для свойства obj[prop].
 var obj = {
   test: 5
@@ -875,6 +882,7 @@ rabbit.walk();
 
 let arr = [1, 2, 3]; // массив — пример итерируемого объекта
 
+//прерывается break-ом
 for (let value of arr) {
   alert(value); // 1, затем 2, затем 3
 }
@@ -908,7 +916,6 @@ range[Symbol.iterator] = function() {
         };
       }
     }
-
   }
 };
 
@@ -1353,6 +1360,52 @@ function isBiggerThan10(element, index, array) {
 var a = ['h','e','l','l','o',]; 
 var as = a.reduce((sum,elem)=>sum+elem);
 
+/*#------------Метод from------------*/
+
+Array.from() //создаёт новый экземпляр Array из массивоподобного или итерируемого объекта.
+Array.from(arrayLike[, mapFn[, thisArg]])
+
+/*arrayLike
+Массивоподобный или итерируемый объект, преобразуемый в массив.
+mapFn
+Необязательный параметр. Отображающая функция, вызываемая для каждого элемента массива.
+thisArg
+Необязательный параметр. Значение, используемое в качестве this при выполнении функции map*/
+
+//Массив из строки String
+Array.from('foo'); 
+// ['f', 'o', 'o']
+
+//Массив из Set
+var s = new Set(['foo', window]); 
+Array.from(s); 
+// ['foo', window]
+
+//Массив из Map
+var m = new Map([[1, 2], [2, 4], [4, 8]]); 
+Array.from(m); 
+// [[1, 2], [2, 4], [4, 8]]
+
+
+//Массив из массивоподобного объекта (arguments)
+function f() {
+  return Array.from(arguments);
+}
+
+f(1, 2, 3); 
+// [1, 2, 3]
+
+// Использование стрелочной функции в качестве функции отображения для
+
+// манипулирования элементами
+Array.from([1, 2, 3], x => x + x); 
+// [2, 4, 6] 
+
+// Генерирования последовательности чисел
+Array.from({ length: 5 }, (v, k) => k); 
+// [0, 1, 2, 3, 4]
+
+
 /*Аргументы функции callback(previousValue, currentItem, index, arr):
 
 previousValue – последний результат вызова функции, он же «промежуточный результат».
@@ -1398,6 +1451,8 @@ let [firstName="Гость", lastName="Анонимный"] = [];
 
 // lastName получит значение, соответствующее текущей дате:
 let [firstName, lastName=defaultLastName()] = ["Вася"];
+
+[...arr] // превращает объкты iterable в массивы
 
 ////////////////////////////////////////////////////////////////
 
@@ -3106,3 +3161,168 @@ alert( screen.width + ' x ' + screen.height );
 
 // доступная ширина/высота (за вычетом таскбара и т.п.)
 alert( screen.availWidth + ' x ' + screen.availHeight );
+
+////////////////////////////////////////////////////////////////
+
+/*#события*/
+
+/*События мыши:
+
+click – происходит, когда кликнули на элемент левой кнопкой мыши
+contextmenu – происходит, когда кликнули на элемент правой кнопкой мыши
+mouseover – возникает, когда на элемент наводится мышь
+mousedown и mouseup – когда кнопку мыши нажали или отжали
+mousemove – при движении мыши
+
+События на элементах управления:
+
+submit – посетитель отправил форму <form>
+focus – посетитель фокусируется на элементе, например нажимает на <input>
+
+Клавиатурные события:
+
+keydown – когда посетитель нажимает клавишу
+keyup – когда посетитель отпускает клавишу
+
+События документа:
+
+DOMContentLoaded – когда HTML загружен и обработан, DOM документа полностью построен и доступен.
+
+События CSS:
+
+transitionend – когда CSS-анимация завершена.*/
+
+//использование атрибутов
+
+//<input value="Нажми меня" onclick="alert('Клик!')" type="button">
+//<input type="button" onclick="countRabbits()" value="Считать кроликов!"/>
+//<input type="text" onfocus="this.value = 'Фокус!'" value="Кликни меня">
+
+ elem.onclick = function() {
+    alert( 'Спасибо' );
+  };
+ text.onfocus = function() {
+    text.value += ' !focus! ';
+  };
+// сфокусируется на input и вызовет обработчик onfocus
+  elem.focus();
+
+elem.addEventListener( "click" , function() {alert('Спасибо!')});
+
+elem.addEventListener("transitionend", function() {
+    alert( "addEventListener" ); // сработает по окончании анимации
+  });
+
+//удаление события
+
+function handler() {
+  alert( 'Спасибо!' );
+}
+
+input.removeEventListener("click", handler);
+
+//Свойства объекта события
+
+elem.onclick = function(event) {
+    // вывести тип события, элемент и координаты клика
+    alert(event.type + " на " + event.currentTarget);
+    alert(event.clientX + ":" + event.clientY);
+  }
+
+event.type //Тип события, в данном случае click
+
+event.currentTarget //Элемент, на котором сработал обработчик. Значение – в точности такое же, как и у this, но бывают ситуации, когда обработчик является методом объекта и его this при помощи bind привязан к этому объекту, тогда мы можем использовать event.currentTarget.
+
+event.clientX / event.clientY //Координаты курсора в момент клика (относительно окна)
+
+event.target //Самый глубокий элемент, который вызывает событие, называется «целевым» или «исходным» элементом. это исходный элемент, на котором произошло событие, в процессе всплытия он неизменен.
+
+//Всплытие
+
+event.stopPropagation() //Для остановки всплытия, препятствует продвижению события дальше, но на текущем элементе все обработчики отработают.
+event.stopImmediatePropagation() //Для того, чтобы полностью остановить обработку
+
+/*поймать событие на стадии перехвата, нужно использовать третий аргумент addEventListener:
+
+Если аргумент true, то событие будет перехвачено по дороге вниз.
+Если аргумент false, то событие будет поймано при всплытии.*/
+ elems[i].addEventListener("click", highlightThis, true);
+
+ //действия по умолчанию
+
+/* <a href="/" onclick="return false">Нажми здесь</a>
+или
+<a href="/" onclick="event.preventDefault()">здесь</a>*/
+
+ event.preventDefault() //Для отмены действия браузера
+
+/* Действий браузера по умолчанию достаточно много.
+
+Вот некоторые примеры событий, которые вызывают действие браузера:
+
+mousedown – нажатие кнопкой мыши в то время как курсор находится на тексте начинает его выделение.
+click на <input type="checkbox"> – ставит или убирает галочку.
+submit – при нажатии на <input type="submit"> в форме данные отправляются на сервер.
+wheel – движение колёсика мыши инициирует прокрутку.
+keydown – при нажатии клавиши в поле ввода появляется символ.
+contextmenu – при правом клике показывается контекстное меню браузера.*/
+
+//Конструктор Event
+
+var event = new Event(тип события[, флаги]);
+
+var event = new Event("hello", {bubbles: true, cancelable: true}); // (3)
+
+/*Тип события – может быть как своим, так и встроенным, к примеру "click".
+
+Флаги – объект вида { bubbles: true/false, cancelable: true/false }, где свойство bubbles указывает, всплывает ли событие, а cancelable – можно ли отменить действие по умолчанию.
+
+Флаги по умолчанию: {bubbles: false, cancelable: false}.*/
+
+//Затем, чтобы инициировать событие, запускается elem.dispatchEvent(event).
+
+var event = new Event("click");
+  elem.dispatchEvent(event);
+
+
+//отменить текущее созданное событие
+rabbit.addEventListener('hide', function(event) {
+    if (confirm("Вызвать preventDefault?")) {
+      event.preventDefault();
+    }
+  });
+
+event.isTrusted //отличить реальное нажатие от программного
+
+/*isTrusted: false – означает, что событие сгенерировано скриптом, это свойство изменить невозможно.
+target: null – это свойство ставится автоматически позже при dispatchEvent.
+type: тип события – первый аргумент new Event.
+bubbles, cancelable – по второму аргументу new Event.*/
+
+//Конструкторы
+
+/*UIEvent
+FocusEvent
+MouseEvent
+WheelEvent
+KeyboardEvent
+CompositionEvent*/
+
+/*Специфический конструктор позволяет указать стандартные свойства для данного типа события.
+
+Например, clientX/clientY для события мыши:*/
+var e = new MouseEvent("click", {
+  bubbles: true,
+  cancelable: true,
+  clientX: 100,
+  clientY: 100
+});
+
+alert( e.clientX ); // 100
+
+
+//Для генерации своих, нестандартных, событий, хоть и можно использовать конструктор Event, но существует и специфический конструктор CustomEvent.
+var event = new CustomEvent("hello", {
+    detail: { name: "Вася" }
+  });
+//Технически, он абсолютно идентичен Event, кроме небольшой детали: у второго аргумента-объекта есть дополнительное свойство detail, в котором можно указывать информацию для передачи в событие.

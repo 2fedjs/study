@@ -33,6 +33,7 @@
 /*#navigator*/
 /*#location*/
 /*#screen*/
+/*#события*/
 
 //bstprc
 
