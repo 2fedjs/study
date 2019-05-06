@@ -112,6 +112,15 @@ while (numReserve.length < 12) {
   if (!found) { numReserve[numReserve.length]=randomNumber; }
 }
 
+//Генерация случайных чисел
+
+Array.prototype.shuffle = function(){
+  if(this.length==1) return this;
+for(var j, x, i = this.length; i; j = Math.floor(Math.random()*i), x = this[--i], this[i] = this[j], this[j]=x);
+  return this;
+}
+
+
 ////////////////////////////////////////////////////////////////
 
 /*#округление*/
@@ -153,6 +162,44 @@ while ((pos = str.indexOf(target, pos + 1)) != -1) {
   alert( pos );
 }
 
+//Побитовая проверка на вхождение
+
+var str = "Widget";
+if (~str.indexOf("get")) {
+  alert( 'совпадение есть!' );
+}
+
+Number(String(i)[j]); // перебор символов в строке, пришедшей как число
+
+
+////////////////////////////////////////////////////////////////
+
+/*#числа*/
+
+//Проверка на число
+
+function isNumeric(n) { 
+return !isNaN(parseFloat(n)) && isFinite(n); 
+}
+
+//Вывод простых чисел
+
+function showPrimes(n) { 
+for (var i = 2; i < n; i++) { 
+if (!isPrime(i)) continue; alert(i); // простое 
+} } 
+function isPrime(n) { 
+for (var i = 2; i < n; i++) { 
+if ( n % i == 0) return false; } 
+return true; }
+
+
+//Округление до заданной точности
+
+var n = 3.456; 
+alert( Math.round(n * 100) / 100 ); // 3.456 -> 345.6 -> 346 -> 3.46
+
+
 ////////////////////////////////////////////////////////////////
 
 /*#объекты*/
@@ -176,6 +223,15 @@ clone.name = "Петя"; // поменяли данные в clone
 
 alert( user.name ); // по-прежнему "Вася"
 
+//Копировать все свойства одного объекта в другой
+function copy() { 
+var dst = arguments[0]; 
+for (var i = 1; i < arguments.length; i++) {
+ var arg = arguments[i]; 
+for (var key in arg) { 
+dst[key] = arg[key]; 
+} } 
+return dst; }
 
 
 ////////////////////////////////////////////////////////////////
@@ -215,6 +271,9 @@ alert( counter() ); // 5
 /*#поиск максимума*/
 
 alert( Math.max.apply(null, arr) ); // 5
+
+var x = Math.min.apply(Math, arr) // запишет минимальное значение в массиве
+arr.reduce(function(prev, item) { return Math.max(prev, item) })
 
 
 let numbers = [2, 3, 15];
@@ -351,3 +410,181 @@ for (var i = 0; i < 100; i++) {
 
 alert( 'Время walkIn: ' + timeIn + 'мс' );
 alert( 'Время walkLength: ' + timeLength + 'мс' );
+
+////////////////////////////////////////////////////////////////
+
+/*#элементы*/
+
+//перебрать в цикле элементы и присвоить всем класс
+
+[].forEach.call(document.querySelectorAll(".story .link .highslide"), function(el){ el.classList.add("link link_ajax link_theme_normal", "story__image gw9wsja80d4pldi__image i-bem"); }); 
+
+//плавно проскроллить
+if(whereScroll() > 0) {
+    window.scrollBy(0,-100);
+    t = setTimeout('up()',20);
+  } else clearTimeout(t);
+
+//точное определение высоты прокрутки
+var scrollHeight = Math.max( document.body.scrollHeight, 
+document.documentElement.scrollHeight, 
+document.body.offsetHeight, 
+document.documentElement.offsetHeight, 
+document.body.clientHeight, 
+document.documentElement.clientHeight ); 
+alert( 'Высота с учетом прокрутки: ' + scrollHeight );
+
+//Получение координат в документе
+function getCoords(elem) { // кроме IE8- 
+var box = elem.getBoundingClientRect(); 
+return { 
+top: box.top + pageYOffset, 
+left: box.left + pageXOffset 
+}; 
+}
+
+//Назначить один обработчик на много кнопок
+function Menu(elem) { 
+this.save = function() { 
+alert( 'сохраняю' ); 
+}; 
+this.load = function() { 
+alert( 'загружаю' ); 
+}; 
+this.search = function() { 
+alert( 'ищу' ); 
+}; 
+var self = this; 
+elem.onclick = function(e) {
+ var target = e.target; 
+var action = target.getAttribute('data-action'); 
+if (action) { self[action](); 
+} 
+}; 
+} 
+new Menu(menu);
+
+//Скрывать элемент по атрибуту
+
+document.onclick = function(event) { 
+var target = event.target; 
+var id = target.getAttribute('data-toggle-id'); 
+if (!id) return; 
+var elem = document.getElementById(id); 
+elem.hidden = !elem.hidden; };
+
+////////////////////////////////////////////////////////////////
+
+/*#элементы*/
+
+//Получения символа в кейпресс
+
+function getChar(event) {
+  if (event.which == null) { // IE
+    if (event.keyCode < 32) return null; // спец. символ
+    return String.fromCharCode(event.keyCode)
+  }
+
+  if (event.which != 0 && event.charCode != 0) { // все кроме IE
+    if (event.which < 32) return null; // спец. символ
+    return String.fromCharCode(event.which); // остальные
+  }
+
+  return null; // спец. символ
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#мышь*/
+
+//Перетаскивание
+
+avatar.addEventListener(“mousedown”, function(evt) {
+  evt.preventDefault();
+
+  var startCoords = {      // | запомнить текущие координаты по первому нажатию
+    x: evt.clientX,
+    y: evt.clientY
+};
+
+var onMouseMove = function (mouseEvt) {
+
+  mouseEvt.preventDefault();
+  
+  var shift = {
+    x: startCoords.x - moveEvt.clientX,
+    y: startCoords.y - moveEvt.clientY,
+           }
+    startCoords = {       
+    x: moveEvt.clientX,
+      y: moveEvt.clientY
+                  };
+  
+  block.style.top = (setup.offsetTop - shift.y) + ‘px’;
+  block.style.left = (setup.offsetLeft - shift.x) + ‘px’;
+
+};
+
+var onMouseUp = function(upEvt) {
+  upEvt.preventDefault();
+  document.removeEventListener(“mousemove”, onMouseMove);
+            document.removeEventListener(“mousemove”, onMouseUp);  
+
+  if(dragged){
+  var onClickPreventDefault = function(evt){
+    evt.preventDefault();
+    dialogHandler.removeEventListener(‘click’, onClickPreventDefault ) 
+                };
+  dialogHandler.addEventListener(‘click’, onClickPreventDefault );
+            }
+           };
+
+document.addEventListener(“mousemove”, onMouseMove);   // | подписываюсь на перемещение
+document.addEventListener(“mousemove”, onMouseUp);   // | подписываюсь на отжатие мыши
+})
+
+window.addEventListener('load',function() {}) -// ожидание загрузки страницы
+
+form.addEventListener(‘submit’,function() {}) // событие отправки данные с формы
+new FormData(form) // формирует массив данных введенных в форму
+
+////////////////////////////////////////////////////////////////
+
+/*#сортировка*/
+
+//Сортировка методом выбора от меньшего к большему
+
+for (var i = 0; i <= usersByDay.length - 2; i++) {
+  var minValue = usersByDay[i];
+
+  for (var j = i + 1; j <= usersByDay.length - 1; j++) {
+    if (usersByDay[j] < minValue) {
+      minValue = usersByDay[j];
+      var swap = usersByDay[i];
+      usersByDay[i] = minValue;
+      usersByDay[j] = swap;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
+/*#таймер*/
+
+//Функция debounce
+
+var DEBOUNCE_INTERVAL = 300;
+
+window.debounce = function(fun){
+  var lastTimeout = null;
+  
+  return function(){
+  var args = arguments;
+  if(lastTimaout){
+  window.clearTimeout(lastTimeout )
+            }
+  lastTimeout = window setTimeout (function(){
+  fun.apply(null,args);
+            }, DEBOUNCE_INTERVAL );
+};
+}
