@@ -1,0 +1,12 @@
+﻿Math.max(arg1, arg2, ..., argN)
+Object.assign(dest, src1, ..., srcN)
+Array.isArray(department)
+for (let subdep of Object.values(department)) {
+      sum += sumSalaries(subdep); // recursively call for subdepartments, sum the results
+    }
+alert( Array.from(str) ); // H,e,l,l,o
+
+Если переменная нигде не найдена, это ошибка в строгом режиме. Без use strictэтого присваивание неопределенной переменной создает новую глобальную переменную для обратной совместимости.
+
+FD - при use strict видны только в блоке объявления
+console.log(array1.includes(2));

@@ -634,112 +634,6 @@ var animal = new function() {
   this.canWalk = true;
 };
 
-/*#------------Дескрипторы в примерах------------*/
-Object.defineProperty(object1, 'property1', {
-  value: 42,
-  writable: false
-});
-/*В нём могут быть следующие поля:
-
-value – значение свойства, по умолчанию undefined
-writable – значение свойства можно менять, если true. По умолчанию false.
-configurable – если true, то свойство можно удалять, а также менять его в дальнейшем при помощи новых вызовов defineProperty. По умолчанию false.
-enumerable – если true, то свойство просматривается в цикле for..in и методе Object.keys(). По умолчанию false.
-get – функция, которая возвращает значение свойства. По умолчанию undefined.
-set – функция, которая записывает значение свойства. По умолчанию undefined.*/
-//Чтобы избежать конфликта, запрещено одновременно указывать значение value и функции get/set. Либо значение, либо функции для его чтения-записи, одно из двух. Также запрещено и не имеет смысла указывать writable при наличии get/set-функций.
-
-/*#------------Свойство-функция------------*/
-var user = {
-  firstName: "Вася",
-  surname: "Петров"
-}
-
-Object.defineProperty(user, "fullName", {
-  get: function() {
-    return this.firstName + ' ' + this.surname;
-  },
-   set: function(value) {
-      var split = value.split(' ');
-      this.firstName = split[0];
-      this.surname = split[1];
-    }
-});
-
-alert(user.fullName); // Вася Петров
-//Если мы создаём объект при помощи синтаксиса { ... }, то задать свойства-функции можно прямо в его определении.
-var user = {
-  firstName: "Вася",
-  surname: "Петров",
-
-  get fullName() {
-    return this.firstName + ' ' + this.surname;
-  },
-
-  set fullName(value) {
-    var split = value.split(' ');
-    this.firstName = split[0];
-    this.surname = split[1];
-  }
-};
-
-//Позволяет объявить несколько свойств сразу:
-Object.defineProperties(user, {
-  firstName: {
-    value: "Петя"
-  },
-
-  surname: {
-    value: "Иванов"
-  },
-
-  fullName: {
-    get: function() {
-      return this.firstName + ' ' + this.surname;
-    }
-  }
-});
-
-
-//возвращает только enumerable-свойства.
-var obj = {
-  a: 1,
-  b: 2,
-  internal: 3
-};
-alert( Object.keys(obj) ); // a,b
-
-//возвращает все:
-alert( Object.getOwnPropertyNames(obj) ); // a, b, internal
-
-Reflect.owmKeys(user) //возвращает в том числе символы
-
-//Возвращает дескриптор для свойства obj[prop].
-var obj = {
-  test: 5
-};
-var descriptor = Object.getOwnPropertyDescriptor(obj, 'test');
-
-// заменим value на геттер, для этого...
-delete descriptor.value; // ..нужно убрать value/writable
-delete descriptor.writable;
-descriptor.get = function() { // и поставить get
-  alert( "Preved :)" );
-};
-
-Object.preventExtensions(obj)
-//Запрещает добавление свойств в объект.
-Object.seal(obj)
-//Запрещает добавление и удаление свойств, все текущие свойства делает configurable: false.
-Object.freeze(obj)
-//Запрещает добавление, удаление и изменение свойств, все текущие свойства делает configurable: false, writable: false.
-Object.isExtensible(obj)
-//Возвращает false, если добавление свойств объекта было запрещено вызовом метода Object.preventExtensions.
-Object.isSealed(obj)
-//Возвращает true, если добавление и удаление свойств объекта запрещено, и все текущие свойства являются configurable: false.
-Object.isFrozen(obj)
-//Возвращает true, если добавление, удаление и изменение свойств объекта запрещено, и все текущие свойства являются configurable: false, writable: false.
-
 /*#------------Прототип proto------------*/
 var animal = {
   eats: true
@@ -938,6 +832,201 @@ let rabbit = {
 
 rabbit.walk();
 //super работает только внутри методов.
+
+/*#классы*/
+
+class User {
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  sayHi() {
+    alert(this.name);
+  }
+
+}
+// нельзя вызывать без new, будет ошибка.
+// видно только в текущем блоке и только в коде, который находится ниже объявления (Function Declaration видно и до объявления).
+
+/*#------------Class Expression------------*/
+
+let User = class {
+  sayHi() { alert('Привет!'); }
+};
+
+new User().sayHi();
+
+//Статические свойства
+// свойства непосредственно User, то есть доступные из него «через точку».
+class User {
+  constructor(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  static createGuest() {
+    return new User("Гость", "Сайта");
+  }
+}
+alert( User.createGuest ); // createGuest ... (функция)
+
+//Наследование
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  walk() {
+    alert("I walk: " + this.name);
+  }
+}
+
+class Rabbit extends Animal {
+  walk() {
+    super.walk();
+    alert("...and jump!");
+  }
+}
+
+new Rabbit("Вася").walk();
+// I walk: Вася
+// and jump!
+
+//Если у потомка свой constructor, то, чтобы в нём вызвать конструктор родителя – используется синтаксис super() с аргументами для родителя.
+
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  walk() {
+    alert("I walk: " + this.name);
+  }
+}
+class Rabbit extends Animal {
+  constructor() {
+    // вызвать конструктор Animal с аргументом "Кроль"
+    super("Кроль"); // то же, что и Animal.call(this, "Кроль")
+  }
+}
+new Rabbit().walk(); // I walk: Кроль
+
+ //До вызова super не существует this,
+ class Rabbit extends Animal {
+  constructor() {
+    alert(this); // ошибка, this не определён!
+    // обязаны вызвать super() до обращения к this
+    super();
+    // а вот здесь уже можно использовать this
+  }
+} 
+
+/*#------------Дескрипторы в примерах------------*/
+Object.defineProperty(object1, 'property1', {
+  value: 42,
+  writable: false
+});
+/*В нём могут быть следующие поля:
+
+value – значение свойства, по умолчанию undefined
+writable – значение свойства можно менять, если true. По умолчанию false.
+configurable – если true, то свойство можно удалять, а также менять его в дальнейшем при помощи новых вызовов defineProperty. По умолчанию false.
+enumerable – если true, то свойство просматривается в цикле for..in и методе Object.keys(). По умолчанию false.
+get – функция, которая возвращает значение свойства. По умолчанию undefined.
+set – функция, которая записывает значение свойства. По умолчанию undefined.*/
+//Чтобы избежать конфликта, запрещено одновременно указывать значение value и функции get/set. Либо значение, либо функции для его чтения-записи, одно из двух. Также запрещено и не имеет смысла указывать writable при наличии get/set-функций.
+
+/*#------------Свойство-функция------------*/
+var user = {
+  firstName: "Вася",
+  surname: "Петров"
+}
+
+Object.defineProperty(user, "fullName", {
+  get: function() {
+    return this.firstName + ' ' + this.surname;
+  },
+   set: function(value) {
+      var split = value.split(' ');
+      this.firstName = split[0];
+      this.surname = split[1];
+    }
+});
+
+alert(user.fullName); // Вася Петров
+//Если мы создаём объект при помощи синтаксиса { ... }, то задать свойства-функции можно прямо в его определении.
+var user = {
+  firstName: "Вася",
+  surname: "Петров",
+
+  get fullName() {
+    return this.firstName + ' ' + this.surname;
+  },
+
+  set fullName(value) {
+    var split = value.split(' ');
+    this.firstName = split[0];
+    this.surname = split[1];
+  }
+};
+
+//Позволяет объявить несколько свойств сразу:
+Object.defineProperties(user, {
+  firstName: {
+    value: "Петя"
+  },
+
+  surname: {
+    value: "Иванов"
+  },
+
+  fullName: {
+    get: function() {
+      return this.firstName + ' ' + this.surname;
+    }
+  }
+});
+
+
+//возвращает только enumerable-свойства.
+var obj = {
+  a: 1,
+  b: 2,
+  internal: 3
+};
+alert( Object.keys(obj) ); // a,b
+
+//возвращает все:
+alert( Object.getOwnPropertyNames(obj) ); // a, b, internal
+
+Reflect.owmKeys(user) //возвращает в том числе символы
+
+//Возвращает дескриптор для свойства obj[prop].
+var obj = {
+  test: 5
+};
+var descriptor = Object.getOwnPropertyDescriptor(obj, 'test');
+
+// заменим value на геттер, для этого...
+delete descriptor.value; // ..нужно убрать value/writable
+delete descriptor.writable;
+descriptor.get = function() { // и поставить get
+  alert( "Preved :)" );
+};
+
+Object.preventExtensions(obj)
+//Запрещает добавление свойств в объект.
+Object.seal(obj)
+//Запрещает добавление и удаление свойств, все текущие свойства делает configurable: false.
+Object.freeze(obj)
+//Запрещает добавление, удаление и изменение свойств, все текущие свойства делает configurable: false, writable: false.
+Object.isExtensible(obj)
+//Возвращает false, если добавление свойств объекта было запрещено вызовом метода Object.preventExtensions.
+Object.isSealed(obj)
+//Возвращает true, если добавление и удаление свойств объекта запрещено, и все текущие свойства являются configurable: false.
+Object.isFrozen(obj)
+//Возвращает true, если добавление, удаление и изменение свойств объекта запрещено, и все текущие свойства являются configurable: false, writable: false.
 
 /*#------------Итераторы------------*/
 
@@ -1164,97 +1253,6 @@ construct – перехватывает вызовы new target().
 Каждый перехватчик получает в аргументах target и дополнительные параметры в зависимости от типа.
 
 Если перехватчик в handler не указан, то операция совершается, как если бы была вызвана прямо на target.*/
-
-////////////////////////////////////////////////////////////////
-
-/*#классы*/
-
-class User {
-
-  constructor(name) {
-    this.name = name;
-  }
-
-  sayHi() {
-    alert(this.name);
-  }
-
-}
-// нельзя вызывать без new, будет ошибка.
-// видно только в текущем блоке и только в коде, который находится ниже объявления (Function Declaration видно и до объявления).
-
-/*#------------Class Expression------------*/
-
-let User = class {
-  sayHi() { alert('Привет!'); }
-};
-
-new User().sayHi();
-
-//Статические свойства
-// свойства непосредственно User, то есть доступные из него «через точку».
-class User {
-  constructor(firstName, lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
-
-  static createGuest() {
-    return new User("Гость", "Сайта");
-  }
-}
-alert( User.createGuest ); // createGuest ... (функция)
-
-//Наследование
-class Animal {
-  constructor(name) {
-    this.name = name;
-  }
-
-  walk() {
-    alert("I walk: " + this.name);
-  }
-}
-
-class Rabbit extends Animal {
-  walk() {
-    super.walk();
-    alert("...and jump!");
-  }
-}
-
-new Rabbit("Вася").walk();
-// I walk: Вася
-// and jump!
-
-//Если у потомка свой constructor, то, чтобы в нём вызвать конструктор родителя – используется синтаксис super() с аргументами для родителя.
-
-class Animal {
-  constructor(name) {
-    this.name = name;
-  }
-
-  walk() {
-    alert("I walk: " + this.name);
-  }
-}
-class Rabbit extends Animal {
-  constructor() {
-    // вызвать конструктор Animal с аргументом "Кроль"
-    super("Кроль"); // то же, что и Animal.call(this, "Кроль")
-  }
-}
-new Rabbit().walk(); // I walk: Кроль
-
- //До вызова super не существует this,
- class Rabbit extends Animal {
-  constructor() {
-    alert(this); // ошибка, this не определён!
-    // обязаны вызвать super() до обращения к this
-    super();
-    // а вот здесь уже можно использовать this
-  }
-} 
 
 ////////////////////////////////////////////////////////////////
 
