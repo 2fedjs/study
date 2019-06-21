@@ -19,6 +19,11 @@ Udemy | Symfony с нуля на реальном проекте (2018) PCRec [H
 Udemy | Создание сайта на Yii ручками, без использования шаблонов (2018) PCRec [H.264/720p-LQ]
 Udemy | Парсеры, роботы, автоматизация, Selenium, PhantomJS на PHP (2018) PCRec [H.264]
 Udemy | Полный Курс Python С Нуля До Героя (2017) PCRec [H.264/1080p-LQ]
+WordPress с нуля до профессионала
+[Udemy] Angular 7 c Нуля до Профи [2019, RUS]
+[Udemy] Курс по изучению MySql [2019, RUS]
+[Udemy] Курс по изучению MongoDB [2019, RUS]
+[Udemy] Курс по изучению SQL [2019, RUS]
 
 WebForMySelf | JavaScript. Полное руководство для современной веб-разработки (2019) [unpacked]
 Webformyself | ReactJS с Нуля до Профи (2018) [unpacked]
@@ -26,6 +31,10 @@ Webformyself | Фреймворк Vue.js. Полное руководство д
 Webformyself | PHP-Мастер. От теории до собственной CMS интернет-магазина (2018) [unpacked]
 Владилен Минин | Angular 4 с Нуля до Профи (2017) [unpacked]
 Виктор Гавриленко | Фреймворк Laravel с Нуля до Профи. Быстрая разработка с фреймворком (2016) HDRip [H.264]
+Премиум-уроки
+FullStack-Мастер
+[WebForMySelf] Фреймворк NuxtJS. Руководство по Full-Stack разработке [2019, RUS, ММ]
+[WebForMySelf] WordPress-Мастер Разработка тем для WordPress [2018, RUS]
 
 ITVDN | Angular Advanced (2017) PCRec [H.264/720p-LQ]
 ITVDN | Angular2 Essential (2017) PCRec
