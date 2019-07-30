@@ -36,6 +36,7 @@ Webformyself | PHP-Мастер. От теории до собственной C
 FullStack-Мастер
 [WebForMySelf] Фреймворк NuxtJS. Руководство по Full-Stack разработке [2019, RUS, ММ]
 [WebForMySelf] WordPress-Мастер Разработка тем для WordPress [2018, RUS]
+WebForMySelf | Node.JS. Полное руководство (2019)
 
 ITVDN | Angular Advanced (2017) PCRec [H.264/720p-LQ]
 ITVDN | Angular2 Essential (2017) PCRec
