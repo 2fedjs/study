@@ -14,7 +14,7 @@
 
 Udemy | Полный курс по JavaScript (2018) PCRec [H.264/720p-LQ]
 Udemy | React + Redux - Профессиональная Разработка (2019) PCRec [H.264/720p-LQ]
-Udemy | Шахматы на JavaScript (2018) PCRec [H.264/720p-LQ] magnet:?xt=urn:btih:11DEE239D94014BACF89BA90CA3037736D2AEB2E
+Udemy | Шахматы на JavaScript (2018) PCRec [H.264/720p-LQ]
 Udemy | Ultimate AngularJS: Build a Real-World App from Scratch (2016) [EN]
 Udemy | The Complete Angular Course: Beginner to Advanced (2017) PCRec [H.264/720p-LQ] [EN]
 Udemy | Symfony с нуля на реальном проекте (2018) PCRec [H.264/720p-LQ]
@@ -26,6 +26,9 @@ WordPress с нуля до профессионала
 [Udemy] Курс по изучению MySql [2019, RUS]
 [Udemy] Курс по изучению MongoDB [2019, RUS]
 [Udemy] Курс по изучению SQL [2019, RUS]
+Udemy | Создание HTML5 игр на JavaScript и Canvas (2019) 
+Udemy | Boomberman (2018)
+Udemy | JavaScript задачи. Квест по основам (2018)
 
 WebForMySelf | JavaScript. Полное руководство для современной веб-разработки (2019) [unpacked]
 Webformyself | ReactJS с Нуля до Профи (2018) [unpacked]
