@@ -80,3 +80,4 @@ tceh | Разработчик на Python (2017) PCRec [H.264/720p-LQ]
 javascript.ru | Продвинутый курс по Angular (2018) PCRec [H.264]
 javascript.ru | Курс по React.JS (2018) PCRec [H.264]
 learn.javascript.ru | Илья Кантор | Node.JS от А до Я (2013) PCRec
+[learn.javascript.ru] Курс по Node.JS + Koa.JS [2017, RUS]
